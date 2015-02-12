@@ -1,0 +1,39 @@
+{
+  "name": "y-webrtc",
+  "version": "0.4.0",
+  "description": "WebRTC Connector for Yjs",
+  "main": "y-webrtc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rwth-acis/y-webrtc.git"
+  },
+  "keywords": [
+    "Yjs",
+    "Connector"
+  ],
+  "author": "Kevin Jahns <kevin.jahns@rwth-aachen.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rwth-acis/y-webrtc/issues"
+  },
+  "homepage": "https://github.com/rwth-acis/y-webrtc",
+  "dependencies": {
+    "simplewebrtc": "^1.13.1"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.9.0",
+    "gulp": "^3.8.11",
+    "gulp-browserify": "^0.5.1",
+    "gulp-coffee": "^2.3.1",
+    "gulp-coffeelint": "^0.4.0",
+    "gulp-ignore": "^1.2.1",
+    "gulp-jshint": "^1.9.2",
+    "gulp-plumber": "^0.6.6",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.1.0",
+    "jshint": "^2.6.0"
+  }
+}
