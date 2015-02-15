@@ -8,7 +8,7 @@ ignore = require 'gulp-ignore'
 jshint = require 'gulp-jshint'
 
 paths =
-  webrtc:   ['./lib/y-webrtc.js']
+  webrtc:   ['./lib/y-webrtc*.js']
 
 buildConnector = (connector_name)->
   ()->
