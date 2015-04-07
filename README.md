@@ -1,4 +1,7 @@
-This is a WebRTC Connector for [Yjs](https://dadamonad.github.io/yjs/). It propagates document updates directly to all users via WebRTC. While WebRTC is not the most reliable connector, messages are propagated with almost no delay.
+# WebRTC Connector for [Yjs](https://github.com/y-js/yjs)
+
+
+It propagates document updates directly to all users via WebRTC. While WebRTC is not the most reliable connector, messages are propagated with almost no delay.
 
 * Very fast message propagation (not noticeable)
 * Very easy to use
