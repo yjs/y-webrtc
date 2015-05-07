@@ -114,7 +114,7 @@ if(window !== undefined){
   if(window.Y !== undefined){
     window.Y.WebRTC = WebRTC;
   } else {
-    console.err("You must first include Y, and then the WebRTC Connector!")
+    console.err("You must first include Y, and then the WebRTC Connector!");
   }
 }
 if(module !== undefined){

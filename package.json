@@ -2,7 +2,7 @@
   "name": "y-webrtc",
   "version": "0.5.0",
   "description": "WebRTC Connector for Yjs",
-  "main": "y-webrtc.js",
+  "main": "./build/node/y-webrtc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
