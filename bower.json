@@ -1,12 +1,12 @@
 {
   "name": "y-webrtc",
   "main": "y-webrtc.js",
-  "version": "0.4.0",
-  "homepage": "https://github.com/rwth-acis/y-webrtc",
+  "version": "0.5.0",
+  "homepage": "http://y-js.org",
   "authors": [
     "Kevin Jahns <kevin.jahns@rwth-aachen.de>"
   ],
-  "description": "A WebRTC connector for Yjs",
+  "description": "WebRTC connector for Yjs",
   "moduleType": [
     "globals",
     "node"
