@@ -173,12 +173,11 @@ gulp.task('dev', ['build:test'], function () {
 
 gulp.task('copy:dist', ['deploy:build'], function () {
   return gulp.src(['./dist/y-webrtc.js', './dist/y-webrtc.js.map'])
-    .pipe(gulp.dest('./dist/Examples/bower_components/yjs/'))
+    .pipe(gulp.dest('../yjs/dist/Examples/bower_components/y-webrtc/'))
 })
 
 gulp.task('dev:examples', ['copy:dist'], function () {
-  gulp.watch('src/**/*.js', ['copy:dist'])
-  return $.serve('dist/Examples')()
+  return gulp.watch('src/**/*.js', ['copy:dist'])
 })
 
 gulp.task('test', ['build:test'], function () {
