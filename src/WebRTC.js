@@ -1,5 +1,7 @@
-/* global Y, SimpleWebRTC */
+/* global Y */
 'use strict'
+
+var SimpleWebRTC = require('simplewebrtc')
 
 class WebRTC extends Y.AbstractConnector {
   constructor (y, options) {

@@ -33,11 +33,10 @@
     "url": "https://github.com/y-js/y-webrtc/issues"
   },
   "homepage": "http://y-js.org",
-  "dependencies": {
-    "simplewebrtc": "^1.19.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-eslint": "^4.1.2",
+    "browserify": "^12.0.1",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.1",
     "gulp-bump": "^1.0.0",
@@ -47,6 +46,8 @@
     "gulp-jasmine": "^2.0.1",
     "gulp-jasmine-browser": "^0.2.3",
     "gulp-load-plugins": "^1.0.0",
+    "gulp-prompt": "^0.1.2",
+    "gulp-rename": "^1.2.2",
     "gulp-serve": "^1.2.0",
     "gulp-shell": "^0.5.1",
     "gulp-sourcemaps": "^1.5.2",
@@ -57,6 +58,10 @@
     "minimist": "^1.2.0",
     "pre-commit": "^1.1.1",
     "promise-polyfill": "^2.1.0",
-    "standard": "^5.2.2"
+    "run-sequence": "^1.1.4",
+    "simplewebrtc": "^1.19.1",
+    "standard": "^5.2.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
