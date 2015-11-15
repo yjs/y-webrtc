@@ -6,12 +6,10 @@ var runSequence = require('run-sequence').use(gulp)
 
 require('../yjs/gulpfile.helper.js')(gulp, {
   polyfills: [],
-  files: [
-    'WebRTC.js'
-  ],
+  entry: './src/WebRTC.js',
   targetName: 'y-webrtc.js',
   moduleName: 'y-webrtc',
-  browserify: true
+  specs: []
 })
 
 gulp.task('default', ['updateSubmodule'], function (cb) {
