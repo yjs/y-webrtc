@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "0.7.2",
+  "version": "8.0.0",
   "description": "WebRTC Connector for Yjs",
   "main": "./src/WebRTC.js",
   "scripts": {
@@ -25,7 +25,12 @@
   },
   "keywords": [
     "Yjs",
-    "Connector"
+    "OT",
+    "Collaboration",
+    "Synchronization",
+    "ShareJS",
+    "Coweb",
+    "Concurrency"
   ],
   "author": "Kevin Jahns <kevin.jahns@rwth-aachen.de>",
   "license": "MIT",
