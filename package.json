@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "WebRTC Connector for Yjs",
   "main": "./src/WebRTC.js",
   "scripts": {
@@ -72,5 +72,8 @@
     "standard": "^5.2.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "peerDependencies": {
+    "yjs": "^9.0.0 || ^10.0.0"
   }
 }
