@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "8.0.2",
+  "version": "8.0.3",
   "homepage": "http://y-js.org",
   "authors": [
     "Kevin Jahns <kevin.jahns@rwth-aachen.de>"
@@ -19,6 +19,6 @@
   "license": "MIT",
   "ignore": [],
   "dependencies": {
-    "yjs": "^9.0.0 || ^10.0.0"
+    "yjs": "^9.0.0 || ^10.0.0 || ^11.0.0"
   }
 }
