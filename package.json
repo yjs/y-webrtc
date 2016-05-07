@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "8.0.3",
+  "version": "8.0.4",
   "description": "WebRTC Connector for Yjs",
   "main": "./src/WebRTC.js",
   "scripts": {
