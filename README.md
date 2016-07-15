@@ -48,6 +48,9 @@ Y({
 }
 ```
 
+# Set up Signaling server
+This webrtc connector is compatible to [this signaling server](https://github.com/DadaMonad/signalmaster) (signalmaster)
+
 ## License
 Yjs is licensed under the [MIT License](./LICENSE).
 
