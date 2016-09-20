@@ -8,10 +8,10 @@ It propagates document updates directly to all users via WebRTC. While WebRTC is
 * Not suited for a large amount of collaborators
 * WebRTC is not supported in all browsers, and some have troubles communicating with each other
 
-We provide you with a free signaling server (it is used by default), but in production you should set up your own signaling server. You could use the [signalmaster](https://github.com/andyet/signalmaster) from &yet, which is very easy to set up.
+We provide you with a free signaling server (it is used by default), but in production you should set up your own signaling server. You could use the [signalmaster](https://github.com/DadaMonad/signalmaster) from &yet, which is very easy to set up.
 
 ## Use it!
-Retrieve this with bower or npm, and use it as a js library or as a custom polymer element.
+Retrieve this with bower or npm.
 
 ##### NPM
 ```
@@ -34,19 +34,21 @@ Y({
     name: 'memory'
   },
   connector: {
-    name: 'webrtc', // choose the webrtc connector
+    name: 'webrtc', // use the webrtc connector
     room: 'Textarea-example-dev'
   },
   sourceDir: '/bower_components', // location of the y-* modules
   share: {
     textarea: 'Text' // y.share.textarea is of type Y.Text
   }
-  // types: ['Richtext', 'Array'] // optional list of types you want to import
 }).then(function (y) {
   // bind the textarea to a shared text element
   y.share.textarea.bind(document.getElementById('textfield'))
 }
 ```
+
+# Set up Signaling server
+This webrtc connector is compatible to [this signaling server](https://github.com/DadaMonad/signalmaster) (signalmaster)
 
 ## License
 Yjs is licensed under the [MIT License](./LICENSE).
