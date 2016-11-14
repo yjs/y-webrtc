@@ -8,7 +8,7 @@ require('../yjs/gulpfile.helper.js')(gulp, {
   polyfills: [],
   entry: './src/WebRTC.js',
   targetName: 'y-webrtc.js',
-  moduleName: 'y-webrtc',
+  moduleName: 'yWebrtc',
   specs: []
 })
 
