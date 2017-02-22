@@ -15,7 +15,7 @@ function extend (Y) {
       options.role = 'slave'
       super(y, options)
       this.webrtcOptions = {
-        url: options.url || 'http://yatta.ninja:8888',
+        url: options.url || 'https://yjs.dbis.rwth-aachen.de:5078',
         room: options.room
       }
       var swr = new SimpleWebRTC(this.webrtcOptions)
