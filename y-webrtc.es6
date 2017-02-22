@@ -1,6 +1,6 @@
 /**
  * yjs - A framework for real-time p2p shared editing on any data
- * @version v12.1.3
+ * @version v12.1.4
  * @link http://y-js.org
  * @license MIT
  */
@@ -15040,7 +15040,7 @@ function extend (Y) {
       options.role = 'slave'
       super(y, options)
       this.webrtcOptions = {
-        url: options.url || 'http://yatta.ninja:8888',
+        url: options.url || 'https://yjs.dbis.rwth-aachen.de:5078',
         room: options.room
       }
       var swr = new SimpleWebRTC(this.webrtcOptions)
