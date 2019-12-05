@@ -39,10 +39,10 @@
     ]
   },
   "dependencies": {
+    "simple-peer": "^9.6.2",
     "lib0": "^0.1.4"
   },
   "devDependencies": {
-    "simple-peer": "^9.6.2",
     "rollup": "^1.27.8",
     "rollup-cli": "^1.0.9",
     "rollup-plugin-commonjs": "^10.1.0",
