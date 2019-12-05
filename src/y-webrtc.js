@@ -15,6 +15,22 @@ const messageSync = 0
 const messageQueryAwareness = 3
 const messageAwareness = 1
 
+const peerId = random.uuidv4()
+
+/**
+ * @type {Map<string, SignallingConn>}
+ */
+const signallingConns = new Map()
+/**
+ * @type {Map<string, WebrtcConn>}
+ */
+const webrtcConns = new Map()
+
+/**
+ * @type {Map<string,WebrtcRoom>}
+ */
+const webrtcRooms = new Map()
+
 /**
  * @param {WebrtcRoom} webrtcRoom
  */
@@ -32,17 +48,16 @@ const checkIsSynced = webrtcRoom => {
 }
 
 /**
- * @param {SignalingConn} signaling
  * @param {WebrtcConn} peerConn
  * @param {Uint8Array} buf
  * @return {encoding.Encoder?}
  */
-const readPeerMessage = (signaling, peerConn, buf) => {
+const readPeerMessage = (peerConn, buf) => {
   const decoder = decoding.createDecoder(buf)
   const encoder = encoding.createEncoder()
   const messageType = decoding.readVarUint(decoder)
   const roomName = decoding.readVarString(decoder)
-  const webrtcRoom = signaling.rooms.get(roomName)
+  const webrtcRoom = webrtcRooms.get(roomName)
   if (webrtcRoom === undefined) {
     return null
   }
@@ -101,7 +116,7 @@ const broadcast = (webrtcRoom, encoder) => {
 
 export class WebrtcConn {
   /**
-   * @param {SignalingConn} signalingConn
+   * @param {SignallingConn} signalingConn
    * @param {boolean} initiator
    * @param {string} remotePeerId
    * @param {Array<string>} announcedTopics
@@ -119,12 +134,12 @@ export class WebrtcConn {
      */
     this.peer = new Peer({ initiator })
     this.peer.on('signal', data => {
-      signalingConn.send({ type: 'publish', topics: announcedTopics, to: remotePeerId, from: signalingConn.peerId, messageType: 'signal', data })
+      signalingConn.send({ type: 'publish', topics: announcedTopics, to: remotePeerId, from: peerId, messageType: 'signal', data })
     })
     this.peer.on('connect', () => {
       this.connected = true
       announcedTopics.forEach(roomName => {
-        const room = signalingConn.rooms.get(roomName)
+        const room = webrtcRooms.get(roomName)
         if (room) {
           // add peer to room
           room.peers.add(this)
@@ -151,8 +166,8 @@ export class WebrtcConn {
     this.peer.on('close', () => {
       this.connected = false
       this.closed = true
-      signalingConn.conns.delete(this.remotePeerId)
-      signalingConn.rooms.forEach(room => {
+      webrtcConns.delete(this.remotePeerId)
+      webrtcRooms.forEach(room => {
         room.peers.delete(this)
         checkIsSynced(room)
       })
@@ -163,7 +178,7 @@ export class WebrtcConn {
       this.closed = true
     })
     this.peer.on('data', data => {
-      const answer = readPeerMessage(signalingConn, this, data)
+      const answer = readPeerMessage(this, data)
       if (answer !== null) {
         send(this, answer)
       }
@@ -189,33 +204,28 @@ export class WebrtcRoom {
   }
 }
 
-export class SignalingConn extends ws.WebsocketClient {
+export class SignallingConn extends ws.WebsocketClient {
   constructor (url) {
     super(url)
-    this.peerId = random.uuidv4()
     /**
-     * @type {Map<string,WebrtcRoom>}
+     * @type {Set<WebrtcProvider>}
      */
-    this.rooms = new Map()
-    /**
-     * @type {Map<string,WebrtcConn>}
-     */
-    this.conns = new Map()
-    this.afterOpen.push(() => ({ type: 'subscribe', topics: Array.from(this.rooms.keys()) }))
-    this.afterOpen.push(() => ({ type: 'publish', messageType: 'announce', topics: Array.from(this.rooms.keys()), from: this.peerId }))
+    this.providers = new Set()
+    this.afterOpen.push(() => ({ type: 'subscribe', topics: Array.from(webrtcRooms.keys()) }))
+    this.afterOpen.push(() => ({ type: 'publish', messageType: 'announce', topics: Array.from(webrtcRooms.keys()), from: peerId }))
     this.on('message', m => {
-      if (m.from === this.peerId || (m.to !== undefined && m.to !== this.peerId)) {
+      if (m.from === peerId || (m.to !== undefined && m.to !== peerId)) {
         return
       }
       switch (m.type) {
         case 'publish': {
           switch (m.messageType) {
             case 'announce':
-              map.setIfUndefined(this.conns, m.from, () => new WebrtcConn(this, true, m.from, m.topics))
+              map.setIfUndefined(webrtcConns, m.from, () => new WebrtcConn(this, true, m.from, m.topics))
               break
             case 'signal':
-              if (m.to === this.peerId) {
-                map.setIfUndefined(this.conns, m.from, () => new WebrtcConn(this, false, m.from, m.topics)).peer.signal(m.data)
+              if (m.to === peerId) {
+                map.setIfUndefined(webrtcConns, m.from, () => new WebrtcConn(this, false, m.from, m.topics)).peer.signal(m.data)
               }
               break
           }
@@ -223,12 +233,17 @@ export class SignalingConn extends ws.WebsocketClient {
       }
     })
   }
+  /**
+   * @param {Array<string>} rooms
+   */
+  subscribe (rooms) {
+    // only subcribe if connection is established, otherwise the conn automatically subscribes to all webrtcRooms
+    if (this.connected) {
+      this.send({ type: 'subscribe', topics: rooms })
+      this.send({ type: 'publish', messageType: 'announce', topics: Array.from(webrtcRooms.keys()), from: peerId })
+    }
+  }
 }
-
-/**
- * @type {Map<string, SignalingConn>}
- */
-const conns = new Map()
 
 /**
  * @extends Observable<string>
@@ -238,22 +253,24 @@ export class WebrtcProvider extends Observable {
    * @param {string} room
    * @param {Y.Doc} doc
    * @param {Object} [opts]
-   * @param {string} [opts.url]
+   * @param {Array<string>} [opts.signalling]
    */
-  constructor (room, doc, { url = 'wss://y-webrtc-rgksxuhaol.now.sh' } = {}) {
+  constructor (room, doc, { signalling = ['wss://y-webrtc-daliwjiawr.now.sh', 'wss://y-webrtc-lcymcvajue.now.sh'] } = {}) {
     super()
-    this.url = url
     this.room = room
     this.doc = doc
-    this.conn = map.setIfUndefined(conns, url, () => new SignalingConn(url))
-    if (this.conn.rooms.has(room)) {
+    this.signallingConns = []
+    signalling.forEach(url => {
+      const signallingConn = map.setIfUndefined(signallingConns, url, () => new SignallingConn(url))
+      this.signallingConns.push(signallingConn)
+      signallingConn.providers.add(this)
+      signallingConn.subscribe([this.room])
+    })
+    if (webrtcRooms.has(room)) {
       throw error.create('A Yjs Doc connected to that room already exists!')
     }
-    if (this.conn.connected) {
-      this.conn.send({ type: 'subscribe', topics: [room] })
-    }
     const webrtcRoom = new WebrtcRoom(doc, this, room)
-    this.conn.rooms.set(room, webrtcRoom)
+    webrtcRooms.set(room, webrtcRoom)
     /**
      * @type {awarenessProtocol.Awareness}
      */
@@ -294,10 +311,16 @@ export class WebrtcProvider extends Observable {
     })
   }
   destroy () {
-    if (this.conn.connected) {
-      this.conn.send({ type: 'unsubscribe', topics: [this.room] })
-    }
-    this.conn.rooms.delete(this.room)
+    this.signallingConns.forEach(conn => {
+      conn.providers.delete(this)
+      if (conn.providers.size === 0) {
+        conn.destroy()
+        signallingConns.delete(this.room)
+      } else {
+        conn.send({ type: 'unsubscribe', topics: [this.room] })
+      }
+    })
+    webrtcRooms.delete(this.room)
     this.doc.off('update', this._docUpdateHandler)
     this.awareness.off('change', this._awarenessUpdateHandler)
     super.destroy()
