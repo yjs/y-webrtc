@@ -22,8 +22,9 @@ import * as Y from 'yjs'
 import { WebrtcProvider } from '../src/y-webrtc.js'
 
 const ydoc = new Y.Doc()
-const provider = new WebrtcProvider('prosemirror', ydoc)
-const yarray = ydoc.get('prosemirror', Y.XmlFragment)
+// clients connected to the same room-name share document updates
+const provider = new WebrtcProvider('your-room-name', ydoc)
+const yarray = ydoc.get('array', Y.Array)
 ```
 
 ##### Signalling
@@ -38,7 +39,7 @@ PORT=4444 node ./bin/server.js
 Peers using the same signalling server will find each other. You can specify several custom signalling servers like so:
 
 ```js
-const provider = new WebrtcProvider('prosemirror', ydoc, { signalling: ['wss://y-webrtc-ckynwnzncc.now.sh', 'ws://localhost:4444'] })
+const provider = new WebrtcProvider('your-room-name', ydoc, { signalling: ['wss://y-webrtc-ckynwnzncc.now.sh', 'ws://localhost:4444'] })
 ```
 
 ### Logging
