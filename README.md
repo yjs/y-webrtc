@@ -56,7 +56,7 @@ localStorage.log = '^y.*'
 
 ```sh
 # enable y-webrtc logging in nodejs
-DEBUG='y-webrtc' node index.js
+LOG='y-webrtc' node index.js
 ```
 
 ## License
