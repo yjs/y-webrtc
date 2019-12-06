@@ -41,6 +41,24 @@ Peers using the same signalling server will find each other. You can specify sev
 const provider = new WebrtcProvider('prosemirror', ydoc, { signalling: ['wss://y-webrtc-ckynwnzncc.now.sh', 'ws://localhost:4444'] })
 ```
 
+### Logging
+
+`y-webrtc` uses the `lib0/logging.js` logging library. By default this library disables logging. You can enable it by specifying the `log` environment / localStorage variable:
+
+```js
+// enable logging for all modules
+localStorage.log = 'true'
+// enable logging only for y-webrtc
+localStorage.log = 'y-webrtc'
+// by specifying a regex variables
+localStorage.log = '^y.*'
+```
+
+```sh
+# enable y-webrtc logging in nodejs
+DEBUG='y-webrtc' node index.js
+```
+
 ## License
 Yjs is licensed under the [MIT License](./LICENSE).
 

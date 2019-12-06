@@ -11,6 +11,10 @@ import Peer from 'simple-peer/simplepeer.min.js'
 import * as syncProtocol from 'y-protocols/sync.js'
 import * as awarenessProtocol from 'y-protocols/awareness.js'
 
+import * as logging from 'lib0/logging.js'
+
+const log = logging.createModuleLogger('y-webrtc')
+
 const messageSync = 0
 const messageQueryAwareness = 3
 const messageAwareness = 1
@@ -44,6 +48,7 @@ const checkIsSynced = webrtcRoom => {
   if ((!synced && webrtcRoom.synced) || (synced && !webrtcRoom.synced)) {
     webrtcRoom.synced = synced
     webrtcRoom.provider.emit('synced', [{ synced }])
+    log('synced ', logging.BOLD, webrtcRoom.name, logging.UNBOLD, ' with all peers')
   }
 }
 
@@ -71,6 +76,7 @@ const readPeerMessage = (peerConn, buf) => {
       const syncMessageType = syncProtocol.readSyncMessage(decoder, encoder, doc, webrtcRoom.provider)
       if (syncMessageType === syncProtocol.messageYjsSyncStep2 && !webrtcRoom.synced) {
         peerConn.syncedRooms.add(roomName)
+        log('synced ', logging.BOLD, roomName, logging.UNBOLD, ' with ', logging.BOLD, peerConn.remotePeerId)
         checkIsSynced(webrtcRoom)
       }
       if (syncMessageType === syncProtocol.messageYjsSyncStep1) {
@@ -122,6 +128,7 @@ export class WebrtcConn {
    * @param {Array<string>} announcedTopics
    */
   constructor (signalingConn, initiator, remotePeerId, announcedTopics) {
+    log('establishing connection to ', logging.BOLD, remotePeerId)
     this.remotePeerId = remotePeerId
     this.closed = false
     this.connected = false
@@ -137,6 +144,7 @@ export class WebrtcConn {
       signalingConn.send({ type: 'publish', topics: announcedTopics, to: remotePeerId, from: peerId, messageType: 'signal', data })
     })
     this.peer.on('connect', () => {
+      log('connected to ', logging.BOLD, remotePeerId)
       this.connected = true
       announcedTopics.forEach(roomName => {
         const room = webrtcRooms.get(roomName)
@@ -172,8 +180,10 @@ export class WebrtcConn {
         checkIsSynced(room)
       })
       this.peer.destroy()
+      log('closed connection to ', logging.BOLD, remotePeerId)
     })
-    this.peer.on('error', () => {
+    this.peer.on('error', err => {
+      log('error in connection to ', logging.BOLD, remotePeerId, ': ', err)
       this.connected = false
       this.closed = true
     })
@@ -232,6 +242,8 @@ export class SignallingConn extends ws.WebsocketClient {
         }
       }
     })
+    this.on('connect', () => log(`connected (${url})`))
+    this.on('disconnect', () => log(`disconnect (${url})`))
   }
   /**
    * @param {Array<string>} rooms
@@ -255,7 +267,7 @@ export class WebrtcProvider extends Observable {
    * @param {Object} [opts]
    * @param {Array<string>} [opts.signalling]
    */
-  constructor (room, doc, { signalling = ['wss://y-webrtc-hrxsloqrim.now.sh'] } = {}) {
+  constructor (room, doc, { signalling = ['wss://y-webrtc-hrxsloqrim.now.sh', 'wss://y-webrtc-signalling-eu.herokuapp.com', 'wss://y-webrtc-signalling-us.herokuapp.com/'] } = {}) {
     super()
     this.room = room
     this.doc = doc

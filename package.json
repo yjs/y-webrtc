@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "simple-peer": "^9.6.2",
-    "lib0": "^0.1.4"
+    "lib0": "^0.1.5"
   },
   "devDependencies": {
     "rollup": "^1.27.8",
@@ -50,7 +50,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "standard": "^12.0.1",
     "y-protocols": "^0.1.0",
-    "lib0": "^0.1.4",
+    "lib0": "^0.1.5",
     "yjs": "13.0.0-102"
   },
   "peerDependenies": {
