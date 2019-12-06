@@ -6,7 +6,7 @@
   "module": "./src/y-webrtc.js",
   "sideEffects": false,
   "scripts": {
-    "now-start": "node ./bin/server.js",
+    "start": "node ./bin/server.js",
     "dist": "rm -rf dist && rollup -c",
     "lint": "standard",
     "preversion": "npm run lint && npm run dist"
