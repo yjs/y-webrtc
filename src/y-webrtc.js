@@ -267,7 +267,7 @@ export class WebrtcProvider extends Observable {
    * @param {Object} [opts]
    * @param {Array<string>} [opts.signalling]
    */
-  constructor (room, doc, { signalling = ['wss://y-webrtc-hrxsloqrim.now.sh', 'wss://y-webrtc-signalling-eu.herokuapp.com', 'wss://y-webrtc-signalling-us.herokuapp.com/'] } = {}) {
+  constructor (room, doc, { signalling = ['wss://signalling.yjs.dev', 'wss://y-webrtc-hrxsloqrim.now.sh', 'wss://y-webrtc-signalling-eu.herokuapp.com', 'wss://y-webrtc-signalling-us.herokuapp.com'] } = {}) {
     super()
     this.room = room
     this.doc = doc
