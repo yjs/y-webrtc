@@ -106,15 +106,13 @@ const onconnection = conn => {
           })
           break
         case 'publish':
-          if (message.topics) {
-            /**
-             * @type {Set<any>}
-             */
-            const receivers = new Set()
-            message.topics.forEach(/** @param {string} topicName */ topicName => {
-              (topics.get(topicName) || []).forEach(sub => receivers.add(sub))
-            })
-            receivers.forEach(receiver => send(receiver, message))
+          if (message.topic) {
+            const receivers = topics.get(message.topic)
+            if (receivers) {
+              receivers.forEach(receiver =>
+                send(receiver, message)
+              )
+            }
           }
           break
         case 'ping':
@@ -138,4 +136,4 @@ server.on('upgrade', (request, socket, head) => {
 
 server.listen(port)
 
-console.log('Signalling server running on localhost:', port)
+console.log('Signaling server running on localhost:', port)

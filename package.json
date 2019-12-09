@@ -7,12 +7,14 @@
   "sideEffects": false,
   "scripts": {
     "start": "node ./bin/server.js",
+    "debug": "concurrently 'live-server --port=3443 --entry-file=test.html' 'npm run watch'",
     "dist": "rm -rf dist && rollup -c",
+    "watch": "rollup -wc",
     "lint": "standard",
     "preversion": "npm run lint && npm run dist"
   },
   "bin": {
-    "y-webrtc-signalling": "./bin/server.js"
+    "y-webrtc-signaling": "./bin/server.js"
   },
   "files": [
     "dist/*",
@@ -40,9 +42,11 @@
   },
   "dependencies": {
     "simple-peer": "^9.6.2",
-    "lib0": "^0.1.5"
+    "lib0": "^0.1.6"
   },
   "devDependencies": {
+    "concurrently": "^5.0.0",
+    "live-server": "^1.2.1",
     "rollup": "^1.27.8",
     "rollup-cli": "^1.0.9",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -50,8 +54,7 @@
     "rollup-plugin-terser": "^5.1.2",
     "standard": "^12.0.1",
     "y-protocols": "^0.1.0",
-    "lib0": "^0.1.5",
-    "yjs": "13.0.0-102"
+    "yjs": "^13.0.0-102"
   },
   "peerDependenies": {
     "yjs": ">=13.0.0-102"

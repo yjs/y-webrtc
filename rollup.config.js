@@ -80,6 +80,15 @@ export default [
     }],
     plugins
   }, {
+    input: './test/index.js',
+    output: [{
+      name: 'test',
+      file: 'dist/test.js',
+      format: 'iife',
+      sourcemap: true
+    }],
+    plugins
+  }, {
     input: './src/y-webrtc.js',
     external: id => /^(lib0|yjs|y-protocols|simple-peer)/.test(id),
     output: [{
