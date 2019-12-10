@@ -59,6 +59,7 @@ const readPeerMessage = (peerConn, buf) => {
   const encoder = encoding.createEncoder()
   const messageType = decoding.readVarUint(decoder)
   const room = peerConn.room
+  log('received message from ', logging.BOLD, peerConn.remotePeerId, logging.GREY, ' (' + room.name + ')', logging.UNBOLD, logging.UNCOLOR, ' message type: ', logging.BOLD, messageType)
   if (room === undefined) {
     return null
   }
@@ -102,9 +103,8 @@ const readPeerMessage = (peerConn, buf) => {
  * @param {encoding.Encoder} encoder
  */
 const sendWebrtcConn = (webrtcConn, encoder) => {
-  if (webrtcConn.connected) {
-    webrtcConn.peer.send(encoding.toUint8Array(encoder))
-  }
+  log('send message to ', logging.BOLD, webrtcConn.remotePeerId, logging.UNBOLD, logging.GREY, ' (', webrtcConn.room.name, ')', logging.UNCOLOR)
+  webrtcConn.peer.send(encoding.toUint8Array(encoder))
 }
 
 /**
@@ -112,11 +112,10 @@ const sendWebrtcConn = (webrtcConn, encoder) => {
  * @param {encoding.Encoder} encoder
  */
 const broadcastWebrtcConn = (room, encoder) => {
+  log('broadcast message in ', logging.BOLD, room.name, logging.UNBOLD)
   const m = encoding.toUint8Array(encoder)
   room.webrtcConns.forEach(conn => {
-    if (conn.connected) {
-      conn.peer.send(m)
-    }
+    conn.peer.send(m)
   })
 }
 
@@ -170,8 +169,6 @@ export class WebrtcConn {
     })
     this.peer.on('error', err => {
       log('error in connection to ', logging.BOLD, remotePeerId, ': ', err)
-      this.connected = false
-      this.closed = true
     })
     this.peer.on('data', data => {
       const answer = readPeerMessage(this, data)
@@ -218,7 +215,7 @@ export class Room {
 const openRoom = (doc, provider, name, key) => {
   // there must only be one room
   if (rooms.has(name)) {
-    throw error.create('A Yjs Doc connected to that room already exists!')
+    throw error.create(`A Yjs Doc connected to room "${name}" already exists!`)
   }
   const room = new Room(doc, provider, name, key)
   rooms.set(name, /** @type {Room} */ (room))
@@ -328,9 +325,9 @@ export class WebrtcProvider extends Observable {
     /**
      * @type {Room|null}
      */
-    let room = null
+    this.room = null
     this.key.then(key => {
-      room = openRoom(doc, this, roomName, key)
+      this.room = openRoom(doc, this, roomName, key)
     })
     /**
      * @type {awarenessProtocol.Awareness}
@@ -343,11 +340,11 @@ export class WebrtcProvider extends Observable {
      * @param {any} origin
      */
     this._docUpdateHandler = (update, origin) => {
-      if (room !== null && (origin !== this || origin === null)) {
+      if (this.room !== null && (origin !== this || origin === null)) {
         const encoder = encoding.createEncoder()
         encoding.writeVarUint(encoder, messageSync)
         syncProtocol.writeUpdate(encoder, update)
-        broadcastWebrtcConn(room, encoder)
+        broadcastWebrtcConn(this.room, encoder)
       }
     }
     /**
@@ -357,12 +354,12 @@ export class WebrtcProvider extends Observable {
      * @param {any} origin
      */
     this._awarenessUpdateHandler = ({ added, updated, removed }, origin) => {
-      if (room !== null) {
+      if (this.room !== null) {
         const changedClients = added.concat(updated).concat(removed)
         const encoder = encoding.createEncoder()
         encoding.writeVarUint(encoder, messageAwareness)
         encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
-        broadcastWebrtcConn(room, encoder)
+        broadcastWebrtcConn(this.room, encoder)
       }
     }
     this.doc.on('update', this._docUpdateHandler)
