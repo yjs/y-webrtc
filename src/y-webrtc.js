@@ -104,7 +104,9 @@ const readPeerMessage = (peerConn, buf) => {
  */
 const sendWebrtcConn = (webrtcConn, encoder) => {
   log('send message to ', logging.BOLD, webrtcConn.remotePeerId, logging.UNBOLD, logging.GREY, ' (', webrtcConn.room.name, ')', logging.UNCOLOR)
-  webrtcConn.peer.send(encoding.toUint8Array(encoder))
+  try {
+    webrtcConn.peer.send(encoding.toUint8Array(encoder))
+  } catch (e) {}
 }
 
 /**
@@ -115,7 +117,9 @@ const broadcastWebrtcConn = (room, encoder) => {
   log('broadcast message in ', logging.BOLD, room.name, logging.UNBOLD)
   const m = encoding.toUint8Array(encoder)
   room.webrtcConns.forEach(conn => {
-    conn.peer.send(m)
+    try {
+      conn.peer.send(m)
+    } catch (e) {}
   })
 }
 
