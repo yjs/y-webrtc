@@ -39,7 +39,8 @@
     "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
     "paths": {
       "yjs": ["../yjs/src/index.js"],
-      "lib0/*": ["../lib0/*"]
+      "lib0/*": ["../lib0/*"],
+      "y-protocols/*": ["../y-protocols/*"]
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
@@ -57,6 +58,8 @@
     /* Experimental Options */
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
-    "maxNodeModuleJsDepth": 5
-  }
+    // "maxNodeModuleJsDepth": 5
+  },
+  "exclude": ["../lib0/**/*", "node_modules", "node_modules/**/*", "dist", "dist/**/*.js"],
+  "include": ["./src/**/*", "./tests/**/*"]
 }
