@@ -518,12 +518,24 @@ export class WebrtcProvider extends Observable {
    * @param {Object} [opts]
    * @param {Array<string>} [opts.signaling]
    * @param {string?} [opts.password]
+   * @param {awarenessProtocol.Awareness} [opts.awareness]
    */
-  constructor (roomName, doc, { signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-uchplqjsol.now.sh', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'], password = null } = {}) {
+  constructor (
+    roomName,
+    doc,
+    {
+      signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-uchplqjsol.now.sh', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
+      password = null,
+      awareness = new awarenessProtocol.Awareness(doc)
+    } = {}
+  ) {
     super()
     this.roomName = roomName
     this.doc = doc
-    this.awareness = new awarenessProtocol.Awareness(doc)
+    /**
+     * @type {awarenessProtocol.Awareness}
+     */
+    this.awareness = awareness
     this.shouldConnect = false
     this.signalingUrls = signaling
     this.signalingConns = []
