@@ -9,10 +9,7 @@ import * as prng from 'lib0/prng.js'
 export const testReapeatEncryption = async tc => {
   const secret = prng.word(tc.prng)
   const roomName = prng.word(tc.prng)
-  const data = {
-    content: 'just a test',
-    number: 4
-  }
+  const data = prng.uint8Array(tc.prng, 100)
 
   /**
    * @type {any}
@@ -24,8 +21,8 @@ export const testReapeatEncryption = async tc => {
   await t.measureTime('Encryption', async () => {
     encrypted = await cryptutils.encrypt(data, key)
   })
-  t.info(`stringified len: ${JSON.stringify(data).length}b`)
-  t.info(`Encrypted len: ${encrypted.length}b`)
+  t.info(`Byte length: ${data.byteLength}b`)
+  t.info(`Encrypted length: ${encrypted.length}b`)
   await t.measureTime('Decryption', async () => {
     decrypted = await cryptutils.decrypt(encrypted, key)
   })

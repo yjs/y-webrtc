@@ -1,5 +1,5 @@
-import nodeResolve from 'rollup-plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs'
+import nodeResolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
 import { terser } from 'rollup-plugin-terser'
 
 // If truthy, it expects all y-* dependencies in the upper directory.
@@ -36,7 +36,7 @@ const debugResolve = {
         return `${process.cwd()}/../yjs/src/index.js`
       }
       if (customModules.has(importee.split('/')[0])) {
-        return `${process.cwd()}/../${importee}/src/${importee}.js`
+        return `${process.cwd()}/../${importee}/src/${importee}.cjs`
       }
       if (customLibModules.has(importee.split('/')[0])) {
         return `${process.cwd()}/../${importee}`
@@ -93,14 +93,14 @@ export default [
     external: id => /^(lib0|yjs|y-protocols|simple-peer)/.test(id),
     output: [{
       name: 'y-webrtc',
-      file: 'dist/y-webrtc.js',
+      file: 'dist/y-webrtc.cjs',
       format: 'cjs',
       sourcemap: true,
       paths: path => {
         if (/^lib0\//.test(path)) {
-          return `lib0/dist${path.slice(4)}`
+          return `lib0/dist${path.slice(4, -3)}.cjs`
         } else if (/^y-protocols\//.test(path)) {
-          return `y-protocols/dist${path.slice(11)}`
+          return `y-protocols/dist${path.slice(11, -3)}.cjs`
         }
         return path
       }

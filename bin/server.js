@@ -2,7 +2,7 @@
 
 const ws = require('ws')
 const http = require('http')
-const map = require('lib0/dist/map.js')
+const map = require('lib0/dist/map.cjs')
 
 const wsReadyStateConnecting = 0
 const wsReadyStateOpen = 1
