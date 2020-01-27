@@ -9,6 +9,7 @@ import * as logging from 'lib0/logging.js'
 import * as promise from 'lib0/promise.js'
 import * as bc from 'lib0/broadcastchannel.js'
 import * as buffer from 'lib0/buffer.js'
+import * as math from 'lib0/math.js'
 import { createMutex } from 'lib0/mutex.js'
 
 import * as Y from 'yjs' // eslint-disable-line
@@ -262,7 +263,9 @@ const announceSignalingInfo = room => {
     // only subcribe if connection is established, otherwise the conn automatically subscribes to all rooms
     if (conn.connected) {
       conn.send({ type: 'subscribe', topics: [room.name] })
-      publishSignalingMessage(conn, room, { type: 'announce', from: room.peerId })
+      if (room.webrtcConns.size < room.provider.maxConns) {
+        publishSignalingMessage(conn, room, { type: 'announce', from: room.peerId })
+      }
     }
   })
 }
@@ -483,8 +486,10 @@ export class SignalingConn extends ws.WebsocketClient {
               }])
             switch (data.type) {
               case 'announce':
-                map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
-                emitPeerChange()
+                if (webrtcConns.size < room.provider.maxConns) {
+                  map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
+                  emitPeerChange()
+                }
                 break
               case 'signal':
                 if (data.to === peerId) {
@@ -519,6 +524,7 @@ export class WebrtcProvider extends Observable {
    * @param {Array<string>} [opts.signaling]
    * @param {string?} [opts.password]
    * @param {awarenessProtocol.Awareness} [opts.awareness]
+   * @param {number} [opts.maxConns]
    */
   constructor (
     roomName,
@@ -526,7 +532,8 @@ export class WebrtcProvider extends Observable {
     {
       signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-uchplqjsol.now.sh', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
       password = null,
-      awareness = new awarenessProtocol.Awareness(doc)
+      awareness = new awarenessProtocol.Awareness(doc),
+      maxConns = 20 + math.floor(random.rand() * 15) // just to prevent that exactly n clients form a cluster
     } = {}
   ) {
     super()
@@ -539,6 +546,7 @@ export class WebrtcProvider extends Observable {
     this.shouldConnect = false
     this.signalingUrls = signaling
     this.signalingConns = []
+    this.maxConns = maxConns
     /**
      * @type {PromiseLike<CryptoKey | null>}
      */
