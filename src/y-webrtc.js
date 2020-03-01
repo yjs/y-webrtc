@@ -228,6 +228,16 @@ export class WebrtcConn {
         sendWebrtcConn(this, answer)
       }
     })
+    this.peer.on('stream', stream => {
+      var video = document.querySelector('video');
+
+      if ('srcObject' in video) {
+        video.srcObject = stream
+      } else {
+        video.src = window.URL.createObjectURL(stream) // for older browsers
+      }
+      video.play()
+    })    
   }
   destroy () {
     this.peer.destroy()
