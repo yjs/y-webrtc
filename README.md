@@ -1,4 +1,4 @@
-# WebRTC Connector for [Yjs](https://github.com/y-js/yjs)
+# WebRTC Connector for [Yjs](https://github.com/yjs/yjs)
 
 It propagates document updates directly to all users via WebRTC.
 

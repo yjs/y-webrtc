@@ -270,13 +270,18 @@ const announceSignalingInfo = room => {
   })
 }
 
+/**
+ * @param {Room} room
+ */
 const broadcastBcPeerId = room => {
-  // broadcast peerId via broadcastchannel
-  const encoderPeerIdBc = encoding.createEncoder()
-  encoding.writeVarUint(encoderPeerIdBc, messageBcPeerId)
-  encoding.writeUint8(encoderPeerIdBc, 1)
-  encoding.writeVarString(encoderPeerIdBc, room.peerId)
-  broadcastBcMessage(room, encoding.toUint8Array(encoderPeerIdBc))
+  if (room.provider.filterBcConns) {
+    // broadcast peerId via broadcastchannel
+    const encoderPeerIdBc = encoding.createEncoder()
+    encoding.writeVarUint(encoderPeerIdBc, messageBcPeerId)
+    encoding.writeUint8(encoderPeerIdBc, 1)
+    encoding.writeVarString(encoderPeerIdBc, room.peerId)
+    broadcastBcMessage(room, encoding.toUint8Array(encoderPeerIdBc))
+  }
 }
 
 export class Room {
@@ -525,6 +530,7 @@ export class WebrtcProvider extends Observable {
    * @param {string?} [opts.password]
    * @param {awarenessProtocol.Awareness} [opts.awareness]
    * @param {number} [opts.maxConns]
+   * @param {boolean} [opts.filterBcConns]
    */
   constructor (
     roomName,
@@ -533,12 +539,14 @@ export class WebrtcProvider extends Observable {
       signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-uchplqjsol.now.sh', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
       password = null,
       awareness = new awarenessProtocol.Awareness(doc),
-      maxConns = 20 + math.floor(random.rand() * 15) // just to prevent that exactly n clients form a cluster
+      maxConns = 20 + math.floor(random.rand() * 15), // just to prevent that exactly n clients form a cluster
+      filterBcConns = true
     } = {}
   ) {
     super()
     this.roomName = roomName
     this.doc = doc
+    this.filterBcConns = filterBcConns
     /**
      * @type {awarenessProtocol.Awareness}
      */
