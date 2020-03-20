@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "10.1.1",
+  "version": "10.1.2",
   "description": "WebRTC provider for Yjs",
   "main": "./dist/y-webrtc.cjs",
   "module": "./src/y-webrtc.js",
@@ -65,6 +65,6 @@
     "ws": "^7.2.0"
   },
   "engines": {
-    "node": "10.x"
+    "node": ">=10"
   }
 }
