@@ -3,6 +3,7 @@
   "version": "10.1.2",
   "description": "WebRTC provider for Yjs",
   "main": "./dist/y-webrtc.cjs",
+  "types": "./dist/y-webrtc.d.ts",
   "module": "./src/y-webrtc.js",
   "sideEffects": false,
   "scripts": {
@@ -11,6 +12,7 @@
     "demo": "concurrently 'http-server -o demo/index.html' 'npm run watch'",
     "dist": "rm -rf dist && rollup -c",
     "watch": "rollup -wc",
+    "test": "npm run lint",
     "lint": "standard && tsc",
     "preversion": "npm run lint && npm run dist"
   },
@@ -44,18 +46,19 @@
   "dependencies": {
     "lib0": "^0.2.20",
     "simple-peer": "^9.6.2",
-    "y-protocols": "^0.2.0"
+    "y-protocols": "^0.2.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
+    "@types/simple-peer": "^9.6.0",
     "concurrently": "^5.1.0",
     "http-server": "^0.12.1",
     "rollup": "^1.30.1",
     "rollup-cli": "^1.0.9",
     "rollup-plugin-terser": "^5.2.0",
     "standard": "^12.0.1",
-    "typescript": "^3.7.5",
+    "typescript": "^3.8.3",
     "yjs": "^13.0.4"
   },
   "peerDependenies": {
