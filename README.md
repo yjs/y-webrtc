@@ -10,13 +10,13 @@ It propagates document updates directly to all users via WebRTC.
 
 ## Setup
 
-##### Install
+### Install
 
 ```sh
 npm i y-webrtc
 ```
 
-##### Client code
+### Client code
 
 ```js
 import * as Y from 'yjs'
@@ -28,7 +28,7 @@ const provider = new WebrtcProvider('your-room-name', ydoc, { password: 'optiona
 const yarray = ydoc.get('array', Y.Array)
 ```
 
-##### Signaling
+### Signaling
 
 The peers find each other by connecting to a signaling server. This package implements a small signaling server in `./bin/server.js`.
 
@@ -42,6 +42,22 @@ Peers using the same signaling server will find each other. You can specify seve
 ```js
 const provider = new WebrtcProvider('your-room-name', ydoc, { signaling: ['wss://y-webrtc-ckynwnzncc.now.sh', 'ws://localhost:4444'] })
 ```
+
+### Communication Restrictions
+
+y-webrtc is restricted by the number of peers that the web browser can create. By default, every client is connected to every other client up until the maximum number of conns is reached. The clients will still sync if every client is connected at least indirectly to every other client. Theoretically, y-webrtc allows an unlimited number of users, but at some point it can't be guaranteed anymore that the clients sync any longer**. Because we don't want to be greedy,
+y-webrtc has a restriction to connect to a maximum of `20 + math.floor(random.rand() * 15)` peers. The value has a random factor in order to prevent clients to form clusters, that can't connect to other clients. The value can be adjusted using the `maxConn` option. I.e.
+
+```js
+const provider = new WebrtcProvider('your-room-name', ydoc, { maxConns: 70 + math.floor(random.rand() * 70) })
+```
+
+** A gifted mind could use this as an exercise and calculate the probability of clusters forming depending on the number of peers in the network. The default value was used to connect at least 100 clients at a conference meeting on a bad network connection.
+
+### Use y-webrtc for conferencing solutions
+
+Just listen to the "peers" event from the provider to listen for more incoming WebRTC connections and use the simple-peer API to share streams. More help on this would be welcome. By default, browser windows share data using BroadcastChannel without WebRTC. In order to connect all peers and browser windows with each other, set `maxConns = Number.POSITIVE_INFINITY` and `filterBcConns = true`.
+
 
 ### Logging
 
