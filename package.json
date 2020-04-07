@@ -44,22 +44,22 @@
     ]
   },
   "dependencies": {
-    "lib0": "^0.2.20",
+    "lib0": "^0.2.24",
     "simple-peer": "^9.6.2",
-    "y-protocols": "^0.2.1"
+    "y-protocols": "^0.2.3"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^11.0.1",
-    "@rollup/plugin-node-resolve": "^7.0.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/simple-peer": "^9.6.0",
     "concurrently": "^5.1.0",
     "http-server": "^0.12.1",
-    "rollup": "^1.30.1",
+    "rollup": "^1.32.1",
     "rollup-cli": "^1.0.9",
-    "rollup-plugin-terser": "^5.2.0",
-    "standard": "^12.0.1",
+    "rollup-plugin-terser": "^5.3.0",
+    "standard": "^14.3.3",
     "typescript": "^3.8.3",
-    "yjs": "^13.0.4"
+    "yjs": "^13.0.5"
   },
   "peerDependenies": {
     "yjs": "^13.0.0"

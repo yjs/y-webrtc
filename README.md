@@ -1,9 +1,9 @@
-# WebRTC Connector for [Yjs](https://github.com/yjs/yjs)
+# WebRTC connector for [Yjs](https://github.com/yjs/yjs)
 
-It propagates document updates directly to all users via WebRTC.
+Propagates document updates peer-to-peer to all users using WebRTC.
 
 * Fast message propagation
-* Encryption and authorization over untrusted signaling server
+* Encryption and authorization over untrusted signaling servers
 * No setup required, public signaling servers are available
 * Very little server load
 * Not suited for a large amount of collaborators on a single document (each peer is connected to each other)
@@ -89,7 +89,7 @@ The following default values of `opts` can be overwritten:
 }
 ```
 
-### Logging
+## Logging
 
 `y-webrtc` uses the `lib0/logging.js` logging library. By default this library disables logging. You can enable it by specifying the `log` environment / localStorage variable:
 

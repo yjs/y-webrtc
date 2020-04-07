@@ -71,7 +71,7 @@ const readMessage = (room, buf, syncedCallback) => {
   const doc = room.doc
   let sendReply = false
   switch (messageType) {
-    case messageSync:
+    case messageSync: {
       encoding.writeVarUint(encoder, messageSync)
       const syncMessageType = syncProtocol.readSyncMessage(decoder, encoder, doc, room)
       if (syncMessageType === syncProtocol.messageYjsSyncStep2 && !room.synced) {
@@ -81,6 +81,7 @@ const readMessage = (room, buf, syncedCallback) => {
         sendReply = true
       }
       break
+    }
     case messageQueryAwareness:
       encoding.writeVarUint(encoder, messageAwareness)
       encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(awareness, Array.from(awareness.getStates().keys())))
@@ -229,6 +230,7 @@ export class WebrtcConn {
       }
     })
   }
+
   destroy () {
     this.peer.destroy()
   }
@@ -366,6 +368,7 @@ export class Room {
       })
     })
   }
+
   connect () {
     // signal through all available signaling connections
     announceSignalingInfo(this)
@@ -394,6 +397,7 @@ export class Room {
     encoding.writeVarUint8Array(encoderAwarenessState, awarenessProtocol.encodeAwarenessUpdate(this.awareness, [this.doc.clientID]))
     broadcastBcMessage(this, encoding.toUint8Array(encoderAwarenessState))
   }
+
   disconnect () {
     // signal through all available signaling connections
     signalingConns.forEach(conn => {
@@ -415,6 +419,7 @@ export class Room {
     this.awareness.off('change', this._awarenessUpdateHandler)
     this.webrtcConns.forEach(conn => conn.destroy())
   }
+
   destroy () {
     this.disconnect()
   }
@@ -576,12 +581,14 @@ export class WebrtcProvider extends Observable {
     })
     this.connect()
   }
+
   /**
    * @type {boolean}
    */
   get connected () {
     return this.room !== null && this.shouldConnect
   }
+
   connect () {
     this.shouldConnect = true
     this.signalingUrls.forEach(url => {
@@ -593,6 +600,7 @@ export class WebrtcProvider extends Observable {
       this.room.connect()
     }
   }
+
   disconnect () {
     this.shouldConnect = false
     this.signalingConns.forEach(conn => {
@@ -606,6 +614,7 @@ export class WebrtcProvider extends Observable {
       this.room.disconnect()
     }
   }
+
   destroy () {
     // need to wait for key before deleting room
     this.key.then(() => {

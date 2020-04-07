@@ -34,7 +34,7 @@ export const deriveKey = (secret, roomName) => {
         length: 256
       },
       true,
-      [ 'encrypt', 'decrypt' ]
+      ['encrypt', 'decrypt']
     )
   )
 }
