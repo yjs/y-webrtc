@@ -179,7 +179,7 @@ export class WebrtcConn {
     /**
      * @type {any}
      */
-    this.peer = new Peer({ initiator })
+    this.peer = new Peer({ initiator, ...room.provider.peerOpts })
     this.peer.on('signal', signal => {
       publishSignalingMessage(signalingConn, room, { to: remotePeerId, from: room.peerId, type: 'signal', signal })
     })
@@ -531,16 +531,18 @@ export class WebrtcProvider extends Observable {
    * @param {awarenessProtocol.Awareness} [opts.awareness]
    * @param {number} [opts.maxConns]
    * @param {boolean} [opts.filterBcConns]
+   * @param {any} [opts.peerOpts]
    */
   constructor (
     roomName,
     doc,
     {
-      signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-uchplqjsol.now.sh', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
+      signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
       password = null,
       awareness = new awarenessProtocol.Awareness(doc),
-      maxConns = 20 + math.floor(random.rand() * 15), // just to prevent that exactly n clients form a cluster
-      filterBcConns = true
+      maxConns = 20 + math.floor(random.rand() * 15), // the random factor reduces the chance that n clients form a cluster
+      filterBcConns = true,
+      peerOpts = {} // simple-peer options. See https://github.com/feross/simple-peer#peer--new-peeropts
     } = {}
   ) {
     super()
@@ -555,6 +557,7 @@ export class WebrtcProvider extends Observable {
     this.signalingUrls = signaling
     this.signalingConns = []
     this.maxConns = maxConns
+    this.peerOpts = peerOpts
     /**
      * @type {PromiseLike<CryptoKey | null>}
      */
