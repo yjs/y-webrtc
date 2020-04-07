@@ -352,10 +352,10 @@ export class Room {
      */
     this._awarenessUpdateHandler = ({ added, updated, removed }, origin) => {
       const changedClients = added.concat(updated).concat(removed)
-      const encoder = encoding.createEncoder()
-      encoding.writeVarUint(encoder, messageAwareness)
-      encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
-      broadcastRoomMessage(this, encoding.toUint8Array(encoder))
+      const encoderAwareness = encoding.createEncoder()
+      encoding.writeVarUint(encoderAwareness, messageAwareness)
+      encoding.writeVarUint8Array(encoderAwareness, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
+      broadcastRoomMessage(this, encoding.toUint8Array(encoderAwareness))
     }
     this.doc.on('update', this._docUpdateHandler)
     this.awareness.on('change', this._awarenessUpdateHandler)
