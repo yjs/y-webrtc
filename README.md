@@ -20,7 +20,7 @@ npm i y-webrtc
 
 ```js
 import * as Y from 'yjs'
-import { WebrtcProvider } from '../src/y-webrtc.js'
+import { WebrtcProvider } from 'y-webrtc'
 
 const ydoc = new Y.Doc()
 // clients connected to the same room-name share document updates

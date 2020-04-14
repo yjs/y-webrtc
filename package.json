@@ -7,14 +7,16 @@
   "module": "./src/y-webrtc.js",
   "sideEffects": false,
   "scripts": {
+    "clean": "rm -rf dist",
     "start": "node ./bin/server.js",
     "debug": "concurrently 'http-server -o index.html' 'npm run watch'",
     "demo": "concurrently 'http-server -o demo/index.html' 'npm run watch'",
-    "dist": "rm -rf dist && rollup -c",
+    "dist": "rollup -c",
+    "types": "tsc",
     "watch": "rollup -wc",
     "test": "npm run lint",
     "lint": "standard && tsc",
-    "preversion": "npm run lint && npm run dist"
+    "preversion": "npm run clean && npm run lint && npm run dist && npm run types"
   },
   "bin": {
     "y-webrtc-signaling": "./bin/server.js"
