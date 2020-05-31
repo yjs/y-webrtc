@@ -56,7 +56,7 @@ const provider = new WebrtcProvider('your-room-name', ydoc, { maxConns: 70 + mat
 
 ### Use y-webrtc for conferencing solutions
 
-Just listen to the "peers" event from the provider to listen for more incoming WebRTC connections and use the simple-peer API to share streams. More help on this would be welcome. By default, browser windows share data using BroadcastChannel without WebRTC. In order to connect all peers and browser windows with each other, set `maxConns = Number.POSITIVE_INFINITY` and `filterBcConns = true`.
+Just listen to the "peers" event from the provider to listen for more incoming WebRTC connections and use the simple-peer API to share streams. More help on this would be welcome. By default, browser windows share data using BroadcastChannel without WebRTC. In order to connect all peers and browser windows with each other, set `maxConns = Number.POSITIVE_INFINITY` and `filterBcConns = false`.
 
 ## API
 
@@ -79,7 +79,7 @@ The following default values of `opts` can be overwritten:
   // Maximal number of WebRTC connections.
   // A random factor is recommended, because it reduces the chance that n clients form a cluster.
   maxConns: 20 + math.floor(random.rand() * 15),
-  // Whether to create WebRTC connections to other tabs in the same browser.
+  // Whether to disable WebRTC connections to other tabs in the same browser.
   // Tabs within the same browser share document updates using BroadcastChannels.
   // WebRTC connections within the same browser are therefore only necessary if you want to share video information too.
   filterBcConns: true,
