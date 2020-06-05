@@ -360,7 +360,7 @@ export class Room {
       broadcastRoomMessage(this, encoding.toUint8Array(encoderAwareness))
     }
     this.doc.on('update', this._docUpdateHandler)
-    this.awareness.on('change', this._awarenessUpdateHandler)
+    this.awareness.on('update', this._awarenessUpdateHandler)
     window.addEventListener('beforeunload', () => {
       awarenessProtocol.removeAwarenessStates(this.awareness, [doc.clientID], 'window unload')
       rooms.forEach(room => {
@@ -416,7 +416,7 @@ export class Room {
     bc.unsubscribe(this.name, this._bcSubscriber)
     this.bcconnected = false
     this.doc.off('update', this._docUpdateHandler)
-    this.awareness.off('change', this._awarenessUpdateHandler)
+    this.awareness.off('update', this._awarenessUpdateHandler)
     this.webrtcConns.forEach(conn => conn.destroy())
   }
 
