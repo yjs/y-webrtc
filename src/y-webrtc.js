@@ -219,9 +219,13 @@ export class WebrtcConn {
       this.peer.destroy()
       log('closed connection to ', logging.BOLD, remotePeerId)
     })
-    this.peer.on('error', err => {
+    this.peer.on('close', () => {
+      log('Connection to remote peer ', logging.BOLD, remotePeerId, logging.UNBOLD, ' has been closed')
       announceSignalingInfo(room)
-      log('error in connection to ', logging.BOLD, remotePeerId, ': ', err)
+    })
+    this.peer.on('error', err => {
+      log('Error in connection to ', logging.BOLD, remotePeerId, ': ', err)
+      announceSignalingInfo(room)
     })
     this.peer.on('data', data => {
       const answer = readPeerMessage(this, data)
@@ -339,12 +343,10 @@ export class Room {
      * @param {any} origin
      */
     this._docUpdateHandler = (update, origin) => {
-      if (origin !== this) {
-        const encoder = encoding.createEncoder()
-        encoding.writeVarUint(encoder, messageSync)
-        syncProtocol.writeUpdate(encoder, update)
-        broadcastRoomMessage(this, encoding.toUint8Array(encoder))
-      }
+      const encoder = encoding.createEncoder()
+      encoding.writeVarUint(encoder, messageSync)
+      syncProtocol.writeUpdate(encoder, update)
+      broadcastRoomMessage(this, encoding.toUint8Array(encoder))
     }
     /**
      * Listens to Awareness updates and sends them to remote peers
