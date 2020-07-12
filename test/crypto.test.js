@@ -15,15 +15,15 @@ export const testReapeatEncryption = async tc => {
    * @type {any}
    */
   let encrypted, decrypted, key
-  await t.measureTime('Key generation', async () => {
+  await t.measureTimeAsync('Key generation', async () => {
     key = await cryptutils.deriveKey(secret, roomName)
   })
-  await t.measureTime('Encryption', async () => {
+  await t.measureTimeAsync('Encryption', async () => {
     encrypted = await cryptutils.encrypt(data, key)
   })
   t.info(`Byte length: ${data.byteLength}b`)
   t.info(`Encrypted length: ${encrypted.length}b`)
-  await t.measureTime('Decryption', async () => {
+  await t.measureTimeAsync('Decryption', async () => {
     decrypted = await cryptutils.decrypt(encrypted, key)
   })
   t.compare(data, decrypted)

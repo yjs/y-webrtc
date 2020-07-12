@@ -50,7 +50,7 @@
     ]
   },
   "dependencies": {
-    "lib0": "^0.2.28",
+    "lib0": "^0.2.32",
     "simple-peer": "^9.7.2",
     "y-protocols": "^1.0.0"
   },
@@ -64,8 +64,8 @@
     "rollup-cli": "^1.0.9",
     "rollup-plugin-terser": "^5.3.0",
     "standard": "^14.3.4",
-    "typescript": "^3.9.5",
-    "yjs": "^13.1.1"
+    "typescript": "^3.9.6",
+    "yjs": "^13.2.0"
   },
   "peerDependenies": {
     "yjs": "^13.0.0"
