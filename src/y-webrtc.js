@@ -609,7 +609,7 @@ export class WebrtcProvider extends Observable {
       conn.providers.delete(this)
       if (conn.providers.size === 0) {
         conn.destroy()
-        signalingConns.delete(this.roomName)
+        signalingConns.delete(conn.url)
       }
     })
     if (this.room) {
