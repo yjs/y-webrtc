@@ -437,7 +437,8 @@ export class Room {
 const openRoom = (doc, provider, name, key) => {
   // there must only be one room
   if (rooms.has(name)) {
-    throw error.create(`A Yjs Doc connected to room "${name}" already exists!`)
+    rooms.get(name).destroy()
+    // throw error.create(`A Yjs Doc connected to room "${name}" already exists!`)
   }
   const room = new Room(doc, provider, name, key)
   rooms.set(name, /** @type {Room} */ (room))
