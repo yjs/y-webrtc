@@ -582,6 +582,8 @@ export class WebrtcProvider extends Observable {
       }
     })
     this.connect()
+    this.destroy = this.destroy.bind(this)
+    doc.on('destroy', this.destroy)
   }
 
   /**
@@ -618,6 +620,7 @@ export class WebrtcProvider extends Observable {
   }
 
   destroy () {
+    this.doc.off('destroy', this.destroy)
     // need to wait for key before deleting room
     this.key.then(() => {
       /** @type {Room} */ (this.room).destroy()
