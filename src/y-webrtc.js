@@ -218,9 +218,6 @@ export class WebrtcConn {
       checkIsSynced(room)
       this.peer.destroy()
       log('closed connection to ', logging.BOLD, remotePeerId)
-    })
-    this.peer.on('close', () => {
-      log('Connection to remote peer ', logging.BOLD, remotePeerId, logging.UNBOLD, ' has been closed')
       announceSignalingInfo(room)
     })
     this.peer.on('error', err => {
