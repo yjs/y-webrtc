@@ -13,7 +13,9 @@ import * as math from 'lib0/math.js'
 import { createMutex } from 'lib0/mutex.js'
 
 import * as Y from 'yjs' // eslint-disable-line
-import Peer from 'simple-peer/simplepeer.min.js'
+
+// import Peer from 'simple-peer/simplepeer.min.js'
+import Peer from './SimplePeerExtended'
 
 import * as syncProtocol from 'y-protocols/sync.js'
 import * as awarenessProtocol from 'y-protocols/awareness.js'
