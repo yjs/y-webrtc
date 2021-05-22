@@ -4,8 +4,8 @@ import * as Y from 'yjs'
 import { WebrtcProvider } from '../src/y-webrtc.js'
 
 const ydoc = new Y.Doc()
-const provider = new WebrtcProvider('prosemirror', ydoc)
-const yarray = ydoc.get('prosemirror', Y.XmlFragment)
+const provider = new WebrtcProvider('webrtc-test', ydoc, { signaling: ['ws://localhost:4444'] })
+const yarray = ydoc.getArray()
 
 provider.on('synced', synced => {
   // NOTE: This is only called when a different browser connects to this client

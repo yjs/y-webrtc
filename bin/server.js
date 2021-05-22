@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const ws = require('ws')
-const http = require('http')
-const map = require('lib0/dist/map.cjs')
+import ws from 'ws'
+import http from 'http'
+import * as map from 'lib0/map'
 
 const wsReadyStateConnecting = 0
 const wsReadyStateOpen = 1

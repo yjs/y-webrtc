@@ -1,10 +1,10 @@
 /* eslint-env browser */
 
-import * as encoding from 'lib0/encoding.js'
-import * as decoding from 'lib0/decoding.js'
-import * as promise from 'lib0/promise.js'
-import * as error from 'lib0/error.js'
-import * as string from 'lib0/string.js'
+import * as encoding from 'lib0/encoding'
+import * as decoding from 'lib0/decoding'
+import * as promise from 'lib0/promise'
+import * as error from 'lib0/error'
+import * as string from 'lib0/string'
 
 /**
  * @param {string} secret

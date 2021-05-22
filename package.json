@@ -2,13 +2,19 @@
   "name": "y-webrtc",
   "version": "10.1.8",
   "description": "WebRTC provider for Yjs",
+  "type": "module",
   "main": "./dist/y-webrtc.cjs",
   "types": "./dist/src/y-webrtc.d.ts",
   "module": "./src/y-webrtc.js",
+  "unpkg": "./src/y-webrtc.mjs",
   "sideEffects": false,
   "funding": {
     "type": "GitHub Sponsors ❤",
     "url": "https://github.com/sponsors/dmonad"
+  },
+  "exports": {
+    "import": "./src/y-webrtc.js",
+    "require": "./dist/y-webrtc.cjs"
   },
   "scripts": {
     "clean": "rm -rf dist",
@@ -50,30 +56,30 @@
     ]
   },
   "dependencies": {
-    "lib0": "^0.2.34",
-    "simple-peer": "^9.9.3",
-    "y-protocols": "^1.0.1"
+    "lib0": "^0.2.42",
+    "simple-peer": "^9.11.0",
+    "y-protocols": "^1.0.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
-    "@types/simple-peer": "^9.6.1",
+    "@types/simple-peer": "^9.6.3",
     "concurrently": "^5.3.0",
     "http-server": "^0.12.3",
     "rollup": "^1.32.1",
     "rollup-cli": "^1.0.9",
     "rollup-plugin-terser": "^5.3.1",
     "standard": "^14.3.4",
-    "typescript": "^3.9.7",
-    "yjs": "^13.4.6"
+    "typescript": "^3.9.9",
+    "yjs": "^13.5.6"
   },
   "peerDependenies": {
-    "yjs": "^13.4.6"
+    "yjs": "^13.5.6"
   },
   "optionalDependencies": {
     "ws": "^7.2.0"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   }
 }
