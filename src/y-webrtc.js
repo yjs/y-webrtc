@@ -540,6 +540,16 @@ export class WebrtcProvider extends Observable {
   constructor (
     roomName,
     doc,
+    /**
+     * @type {{
+     *  signaling?: string[] | null,
+     *  password?: string | null,
+     *  awareness?: awarenessProtocol.Awareness | null,
+     *  maxConns?: number | null,
+     *  filterBcConns?: boolean | null,
+     *  peerOpts?: object | null
+     * }}
+     */
     {
       signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
       password = null,
