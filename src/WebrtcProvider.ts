@@ -11,7 +11,7 @@ import * as logging from "lib0/logging";
 const log = logging.createModuleLogger("y-webrtc");
 
 export const messageSync = 0;
-export const messageQueryAwareness = 3;
+// export const messageQueryAwareness = 3;
 export const messageAwareness = 1;
 
 export class WebrtcProvider extends BaseWebrtcProvider {
