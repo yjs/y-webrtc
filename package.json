@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "10.2.1",
+  "version": "10.2.2",
   "description": "WebRTC provider for Yjs",
   "type": "module",
   "main": "./dist/y-webrtc.cjs",
