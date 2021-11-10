@@ -1,7 +1,7 @@
 
-import * as cryptutils from '../src/crypto.js'
-import * as t from 'lib0/testing.js'
-import * as prng from 'lib0/prng.js'
+import * as cryptutils from '../src/crypto'
+import * as t from 'lib0/testing'
+import * as prng from 'lib0/prng'
 
 /**
  * @param {t.TestCase} tc

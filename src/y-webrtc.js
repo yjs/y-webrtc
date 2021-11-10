@@ -358,7 +358,7 @@ export class Room {
       encoding.writeVarUint8Array(encoderAwareness, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
       broadcastRoomMessage(this, encoding.toUint8Array(encoderAwareness))
     }
-    
+
     window.addEventListener('beforeunload', () => {
       awarenessProtocol.removeAwarenessStates(this.awareness, [doc.clientID], 'window unload')
       rooms.forEach(room => {
@@ -370,7 +370,6 @@ export class Room {
   connect () {
     this.doc.on('update', this._docUpdateHandler)
     this.awareness.on('update', this._awarenessUpdateHandler)
-    
     // signal through all available signaling connections
     announceSignalingInfo(this)
     const roomName = this.name
