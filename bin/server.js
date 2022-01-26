@@ -81,7 +81,7 @@ const onconnection = conn => {
     closed = true
   })
   conn.on('message', /** @param {object} message */ message => {
-    if (message && typeof message !== 'object') {
+    if (typeof message === 'string' || Buffer.isBuffer(message)) {
       message = JSON.parse(message)
     }
     if (message && message.type && !closed) {
