@@ -45,20 +45,22 @@ const debugResolve = {
     return null
   }
 }
-const minificationPlugins = process.env.PRODUCTION ? [terser({
-  module: true,
-  compress: {
-    hoist_vars: true,
+const minificationPlugins = process.env.PRODUCTION
+  ? [terser({
     module: true,
-    passes: 1,
-    pure_getters: true,
-    unsafe_comps: true,
-    unsafe_undefined: true
-  },
-  mangle: {
-    toplevel: true
-  }
-})] : []
+    compress: {
+      hoist_vars: true,
+      module: true,
+      passes: 1,
+      pure_getters: true,
+      unsafe_comps: true,
+      unsafe_undefined: true
+    },
+    mangle: {
+      toplevel: true
+    }
+  })]
+  : []
 
 const plugins = [
   debugResolve,
