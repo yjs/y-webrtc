@@ -359,12 +359,18 @@ export class Room {
       broadcastRoomMessage(this, encoding.toUint8Array(encoderAwareness))
     }
 
-    window.addEventListener('beforeunload', () => {
+    this._beforeUnloadHandler = () => {
       awarenessProtocol.removeAwarenessStates(this.awareness, [doc.clientID], 'window unload')
       rooms.forEach(room => {
         room.disconnect()
       })
-    })
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', this._beforeUnloadHandler)
+    } else if (typeof process !== 'undefined') {
+      process.on('exit', this._beforeUnloadHandler)
+    }
   }
 
   connect () {
