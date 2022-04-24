@@ -428,6 +428,11 @@ export class Room {
 
   destroy () {
     this.disconnect()
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('beforeunload', this._beforeUnloadHandler)
+    } else if (typeof process !== 'undefined') {
+      process.off('exit', this._beforeUnloadHandler)
+    }
   }
 }
 
