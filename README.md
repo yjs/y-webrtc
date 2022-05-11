@@ -43,6 +43,8 @@ Peers using the same signaling server will find each other. You can specify seve
 const provider = new WebrtcProvider('your-room-name', ydoc, { signaling: ['wss://y-webrtc-ckynwnzncc.now.sh', 'ws://localhost:4444'] })
 ```
 
+There is also an interesting article about setting up a scalable "serverless" signaling server by Ronny Roeller: https://medium.com/collaborne-engineering/serverless-yjs-72d0a84326a2
+
 ### Communication Restrictions
 
 y-webrtc is restricted by the number of peers that the web browser can create. By default, every client is connected to every other client up until the maximum number of conns is reached. The clients will still sync if every client is connected at least indirectly to every other client. Theoretically, y-webrtc allows an unlimited number of users, but at some point it can't be guaranteed anymore that the clients sync any longer**. Because we don't want to be greedy,
