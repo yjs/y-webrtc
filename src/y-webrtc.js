@@ -468,71 +468,99 @@ const publishSignalingMessage = (conn, room, data) => {
   }
 }
 
+const handleSignalingMessage = (conn, room, data) => {
+  const webrtcConns = room.webrtcConns
+  const peerId = room.peerId
+  if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
+    // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
+    return
+  }
+  const emitPeerChange = webrtcConns.has(data.from)
+    ? () => {}
+    : () =>
+      room.provider.emit('peers', [{
+        removed: [],
+        added: [data.from],
+        webrtcPeers: Array.from(room.webrtcConns.keys()),
+        bcPeers: Array.from(room.bcConns)
+      }])
+  switch (data.type) {
+    case 'announce':
+      if (webrtcConns.size < room.provider.maxConns) {
+        map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(conn, true, data.from, room))
+        emitPeerChange()
+      }
+      break
+    case 'signal':
+      if (data.to === peerId) {
+        map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(conn, false, data.from, room)).peer.signal(data.signal)
+        emitPeerChange()
+      }
+      break
+  }
+}
+
+const onMessage = (conn, m) => {
+  switch (m.type) {
+    case 'publish': {
+      const roomName = m.topic
+      const room = rooms.get(roomName)
+      if (room == null || typeof roomName !== 'string') {
+        return
+      }
+      if (room.key) {
+        if (typeof m.data === 'string') {
+          cryptoutils.decryptJson(buffer.fromBase64(m.data), room.key).then((data) => handleSignalingMessage(conn, room, data))
+        }
+      } else {
+        handleSignalingMessage(conn, room, m.data)
+      }
+    }
+  }
+}
+
+const onConnect = (conn) => {
+  const topics = Array.from(rooms.keys())
+  conn.send({ type: 'subscribe', topics })
+  rooms.forEach(room =>
+    publishSignalingMessage(conn, room, { type: 'announce', from: room.peerId })
+  )
+}
+
+const onDisconnect = (conn) => {
+  log(`disconnect (${conn.url})`)
+}
+
+/**
+ * @typedef SingalingConnection
+ * @property {Set<unknown>} providers
+ * @property {string} url
+ */
+
+/**
+ * @typedef SignalingConnectionCallbacks
+ * @property {typeof onMessage} onMessage
+ * @property {typeof onConnect} onConnect
+ * @property {typeof onDisconnect} onDisconnect
+ */
+
+/**
+ * @typedef { { new ( url: string, roomName: string, callbacks: SignalingConnectionCallbacks ): SingalingConnection} } SignalingConnectionConstructor
+*/
+
+/**
+ * @implements SingalingConnection
+ */
 export class SignalingConn extends ws.WebsocketClient {
-  constructor (url) {
+  constructor (url, _roomName, callbacks) {
     super(url)
     /**
      * @type {Set<WebrtcProvider>}
      */
     this.providers = new Set()
-    this.on('connect', () => {
-      log(`connected (${url})`)
-      const topics = Array.from(rooms.keys())
-      this.send({ type: 'subscribe', topics })
-      rooms.forEach(room =>
-        publishSignalingMessage(this, room, { type: 'announce', from: room.peerId })
-      )
-    })
-    this.on('message', m => {
-      switch (m.type) {
-        case 'publish': {
-          const roomName = m.topic
-          const room = rooms.get(roomName)
-          if (room == null || typeof roomName !== 'string') {
-            return
-          }
-          const execMessage = data => {
-            const webrtcConns = room.webrtcConns
-            const peerId = room.peerId
-            if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
-              // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
-              return
-            }
-            const emitPeerChange = webrtcConns.has(data.from)
-              ? () => {}
-              : () =>
-                room.provider.emit('peers', [{
-                  removed: [],
-                  added: [data.from],
-                  webrtcPeers: Array.from(room.webrtcConns.keys()),
-                  bcPeers: Array.from(room.bcConns)
-                }])
-            switch (data.type) {
-              case 'announce':
-                if (webrtcConns.size < room.provider.maxConns) {
-                  map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
-                  emitPeerChange()
-                }
-                break
-              case 'signal':
-                if (data.to === peerId) {
-                  map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, false, data.from, room)).peer.signal(data.signal)
-                  emitPeerChange()
-                }
-                break
-            }
-          }
-          if (room.key) {
-            if (typeof m.data === 'string') {
-              cryptoutils.decryptJson(buffer.fromBase64(m.data), room.key).then(execMessage)
-            }
-          } else {
-            execMessage(m.data)
-          }
-        }
-      }
-    })
-    this.on('disconnect', () => log(`disconnect (${url})`))
+    this.on('connect', () => callbacks.onConnect(this))
+    this.on('message', (m) => callbacks.onMessage(this, m))
+    this.on('disconnect', () => callbacks.onDisconnect(this))
   }
 }
 
@@ -547,6 +575,7 @@ export class WebrtcProvider extends Observable {
    * @param {Array<string>?} [opts.signaling]
    * @param {string?} [opts.password]
    * @param {awarenessProtocol.Awareness?} [opts.awareness]
+   * @param {SignalingConnectionConstructor} [opts.signalingConn]
    * @param {number?} [opts.maxConns]
    * @param {boolean?} [opts.filterBcConns]
    * @param {any?} [opts.peerOpts]
@@ -558,6 +587,7 @@ export class WebrtcProvider extends Observable {
       signaling = ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
       password = null,
       awareness = new awarenessProtocol.Awareness(doc),
+      signalingConn = SignalingConn,
       maxConns = 20 + math.floor(random.rand() * 15), // the random factor reduces the chance that n clients form a cluster
       filterBcConns = true,
       peerOpts = {} // simple-peer options. See https://github.com/feross/simple-peer#peer--new-peeropts
@@ -571,6 +601,7 @@ export class WebrtcProvider extends Observable {
      * @type {awarenessProtocol.Awareness}
      */
     this.awareness = awareness
+    this.signalingConn = signalingConn
     this.shouldConnect = false
     this.signalingUrls = signaling
     this.signalingConns = []
@@ -606,8 +637,9 @@ export class WebrtcProvider extends Observable {
 
   connect () {
     this.shouldConnect = true
+    const Connection = this.signalingConn
     this.signalingUrls.forEach(url => {
-      const signalingConn = map.setIfUndefined(signalingConns, url, () => new SignalingConn(url))
+      const signalingConn = map.setIfUndefined(signalingConns, url, () => new Connection(url, this.roomName, { onConnect, onMessage, onDisconnect }))
       this.signalingConns.push(signalingConn)
       signalingConn.providers.add(this)
     })
