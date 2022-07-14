@@ -544,12 +544,12 @@ export class WebrtcProvider extends Observable {
    * @param {string} roomName
    * @param {Y.Doc} doc
    * @param {Object} [opts]
-   * @param {Array<string>?} [opts.signaling]
-   * @param {string?} [opts.password]
-   * @param {awarenessProtocol.Awareness?} [opts.awareness]
-   * @param {number?} [opts.maxConns]
-   * @param {boolean?} [opts.filterBcConns]
-   * @param {any?} [opts.peerOpts]
+   * @param {Array<string>} [opts.signaling]
+   * @param {string} [opts.password]
+   * @param {awarenessProtocol.Awareness} [opts.awareness]
+   * @param {number} [opts.maxConns]
+   * @param {boolean} [opts.filterBcConns]
+   * @param {any} [opts.peerOpts]
    */
   constructor (
     roomName,
