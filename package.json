@@ -13,6 +13,7 @@
     "url": "https://github.com/sponsors/dmonad"
   },
   "exports": {
+    "module": "./src/y-webrtc.js",
     "import": "./src/y-webrtc.js",
     "require": "./dist/y-webrtc.cjs"
   },
