@@ -537,19 +537,23 @@ export class SignalingConn extends ws.WebsocketClient {
 }
 
 /**
+ * @typedef {Object} ProviderOptions
+ * @property {Array<string>} [signaling]
+ * @property {string} [password]
+ * @property {awarenessProtocol.Awareness} [awareness]
+ * @property {number} [maxConns]
+ * @property {boolean} [filterBcConns]
+ * @property {any} [peerOpts]
+ */
+
+/**
  * @extends Observable<string>
  */
 export class WebrtcProvider extends Observable {
   /**
    * @param {string} roomName
    * @param {Y.Doc} doc
-   * @param {Object} [opts]
-   * @param {Array<string>} [opts.signaling]
-   * @param {string} [opts.password]
-   * @param {awarenessProtocol.Awareness} [opts.awareness]
-   * @param {number} [opts.maxConns]
-   * @param {boolean} [opts.filterBcConns]
-   * @param {any} [opts.peerOpts]
+   * @param {ProviderOptions?} opts
    */
   constructor (
     roomName,
