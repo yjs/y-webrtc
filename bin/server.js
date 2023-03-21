@@ -109,7 +109,7 @@ const onconnection = conn => {
           if (message.topic) {
             const receivers = topics.get(message.topic)
             if (receivers) {
-              message.number = receivers.size
+              message.clients = receivers.size
               receivers.forEach(receiver =>
                 send(receiver, message)
               )
