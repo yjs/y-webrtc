@@ -91,9 +91,14 @@ const onconnection = conn => {
             if (typeof topicName === 'string') {
               // add conn to topic
               const topic = map.setIfUndefined(topics, topicName, () => new Set())
+              const prev_size = topic.size;
               topic.add(conn)
               // add topic to conn
               subscribedTopics.add(topicName)
+
+              const empty = prev_size == 0 && topic.size == 1;
+              if (empty)
+                send(conn, { type: "empty" });
             }
           })
           break
