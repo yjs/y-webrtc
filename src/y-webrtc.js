@@ -263,7 +263,7 @@ const broadcastRoomMessage = (room, m) => {
  */
 const announceSignalingInfo = room => {
   signalingConns.forEach(conn => {
-    // only subcribe if connection is established, otherwise the conn automatically subscribes to all rooms
+    // only subscribe if connection is established, otherwise the conn automatically subscribes to all rooms
     if (conn.connected) {
       conn.send({ type: 'subscribe', topics: [room.name] })
       if (room.webrtcConns.size < room.provider.maxConns) {
