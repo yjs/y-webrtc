@@ -15,7 +15,8 @@
   "exports": {
     "module": "./src/y-webrtc.js",
     "import": "./src/y-webrtc.js",
-    "require": "./dist/y-webrtc.cjs"
+    "require": "./dist/y-webrtc.cjs",
+    "types": "./dist/src/y-webrtc.d.ts"
   },
   "scripts": {
     "clean": "rm -rf dist",
