@@ -22,7 +22,7 @@ import * as cryptoutils from './crypto.js'
 
 import { WebPubSubClient } from "@azure/web-pubsub-client";
 
-const log = logging.createModuleLogger('y-webrtc-azure-webpubsub')
+const log = logging.createModuleLogger('y-webrtc')
 
 const messageSync = 0
 const messageQueryAwareness = 3
