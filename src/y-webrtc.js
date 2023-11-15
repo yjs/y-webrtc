@@ -1,4 +1,4 @@
-import * as ws from 'lib0/websocket'
+// import * as ws from 'lib0/websocket'
 import * as map from 'lib0/map'
 import * as error from 'lib0/error'
 import * as random from 'lib0/random'
@@ -20,7 +20,9 @@ import * as awarenessProtocol from 'y-protocols/awareness'
 
 import * as cryptoutils from './crypto.js'
 
-const log = logging.createModuleLogger('y-webrtc')
+import { WebPubSubClient } from "@azure/web-pubsub-client";
+
+const log = logging.createModuleLogger('y-webrtc-azure-webpubsub')
 
 const messageSync = 0
 const messageQueryAwareness = 3
@@ -265,7 +267,7 @@ const announceSignalingInfo = room => {
   signalingConns.forEach(conn => {
     // only subcribe if connection is established, otherwise the conn automatically subscribes to all rooms
     if (conn.connected) {
-      conn.send({ type: 'subscribe', topics: [room.name] })
+      conn.client.joinGroup(room.name)
       if (room.webrtcConns.size < room.provider.maxConns) {
         publishSignalingMessage(conn, room, { type: 'announce', from: room.peerId })
       }
@@ -408,7 +410,7 @@ export class Room {
     // signal through all available signaling connections
     signalingConns.forEach(conn => {
       if (conn.connected) {
-        conn.send({ type: 'unsubscribe', topics: [this.name] })
+        conn.client.leaveGroup(this.name)
       }
     })
     awarenessProtocol.removeAwarenessStates(this.awareness, [this.doc.clientID], 'disconnect')
@@ -461,78 +463,85 @@ const openRoom = (doc, provider, name, key) => {
 const publishSignalingMessage = (conn, room, data) => {
   if (room.key) {
     cryptoutils.encryptJson(data, room.key).then(data => {
-      conn.send({ type: 'publish', topic: room.name, data: buffer.toBase64(data) })
+      conn.client.sendToGroup(room.name, buffer.toBase64(data), "text")
     })
   } else {
-    conn.send({ type: 'publish', topic: room.name, data })
+    conn.client.sendToGroup(room.name, data, "json")
   }
 }
 
-export class SignalingConn extends ws.WebsocketClient {
+export class SignalingConn extends Observable {
   constructor (url) {
-    super(url)
+    super()
+    this.url = url
+    this.connected = false
     /**
      * @type {Set<WebrtcProvider>}
      */
     this.providers = new Set()
-    this.on('connect', () => {
-      log(`connected (${url})`)
-      const topics = Array.from(rooms.keys())
-      this.send({ type: 'subscribe', topics })
+    this.client = new WebPubSubClient(url)
+    this.client.on('connected', e => {
+      this.connected = true
+      log(`connected (${url}) with ID ${e.connectionId}`)
+      // Join all the groups.
+      const groups = Array.from(rooms.keys())
+      groups.forEach(group =>
+        this.client.joinGroup(group)
+      )
       rooms.forEach(room =>
         publishSignalingMessage(this, room, { type: 'announce', from: room.peerId })
       )
     })
-    this.on('message', m => {
-      switch (m.type) {
-        case 'publish': {
-          const roomName = m.topic
-          const room = rooms.get(roomName)
-          if (room == null || typeof roomName !== 'string') {
-            return
-          }
-          const execMessage = data => {
-            const webrtcConns = room.webrtcConns
-            const peerId = room.peerId
-            if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
-              // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
-              return
+    this.client.on('disconnected', e => log(`disconnect (${url}): ${e.message}`))
+    this.client.on('stopped', () => log(`stopped (${url})`))
+    // Set an event handler for group messages before connecting, so we don't miss any.
+    this.client.on('group-message', e => {
+      const roomName = e.message.group
+      const room = rooms.get(roomName)
+      if (room == null || typeof roomName !== 'string') {
+        return
+      }
+      const execMessage = data => {
+        const webrtcConns = room.webrtcConns
+        const peerId = room.peerId
+        if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
+          // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
+          return
+        }
+        const emitPeerChange = webrtcConns.has(data.from)
+          ? () => {}
+          : () =>
+            room.provider.emit('peers', [{
+              removed: [],
+              added: [data.from],
+              webrtcPeers: Array.from(room.webrtcConns.keys()),
+              bcPeers: Array.from(room.bcConns)
+            }])
+        switch (data.type) {
+          case 'announce':
+            if (webrtcConns.size < room.provider.maxConns) {
+              map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
+              emitPeerChange()
             }
-            const emitPeerChange = webrtcConns.has(data.from)
-              ? () => {}
-              : () =>
-                room.provider.emit('peers', [{
-                  removed: [],
-                  added: [data.from],
-                  webrtcPeers: Array.from(room.webrtcConns.keys()),
-                  bcPeers: Array.from(room.bcConns)
-                }])
-            switch (data.type) {
-              case 'announce':
-                if (webrtcConns.size < room.provider.maxConns) {
-                  map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
-                  emitPeerChange()
-                }
-                break
-              case 'signal':
-                if (data.to === peerId) {
-                  map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, false, data.from, room)).peer.signal(data.signal)
-                  emitPeerChange()
-                }
-                break
+            break
+          case 'signal':
+            if (data.to === peerId) {
+              map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, false, data.from, room)).peer.signal(data.signal)
+              emitPeerChange()
             }
-          }
-          if (room.key) {
-            if (typeof m.data === 'string') {
-              cryptoutils.decryptJson(buffer.fromBase64(m.data), room.key).then(execMessage)
-            }
-          } else {
-            execMessage(m.data)
-          }
+            break
         }
       }
+      if (room.key) {
+        if (typeof e.message.data === 'string') {
+          cryptoutils.decryptJson(buffer.fromBase64(e.message.data), room.key).then(execMessage)
+        }
+      } else {
+        execMessage(e.message.data)
+      }
     })
-    this.on('disconnect', () => log(`disconnect (${url})`))
+    // Connect to the signaling server.
+    this.client.start()
   }
 }
 
@@ -625,7 +634,7 @@ export class WebrtcProvider extends Observable {
     this.signalingConns.forEach(conn => {
       conn.providers.delete(this)
       if (conn.providers.size === 0) {
-        conn.destroy()
+        conn.client.stop()
         signalingConns.delete(conn.url)
       }
     })
