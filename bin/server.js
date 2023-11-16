@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import ws from 'ws'
+import { WebSocketServer } from 'ws'
 import http from 'http'
 import * as map from 'lib0/map'
 
@@ -12,8 +12,7 @@ const wsReadyStateClosed = 3 // eslint-disable-line
 const pingTimeout = 30000
 
 const port = process.env.PORT || 4444
-// @ts-ignore
-const wss = new ws.Server({ noServer: true })
+const wss = new WebSocketServer({ noServer: true })
 
 const server = http.createServer((request, response) => {
   response.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -81,7 +80,7 @@ const onconnection = conn => {
     closed = true
   })
   conn.on('message', /** @param {object} message */ message => {
-    if (typeof message === 'string') {
+    if (typeof message === 'string' || message instanceof Buffer) {
       message = JSON.parse(message)
     }
     if (message && message.type && !closed) {
@@ -109,6 +108,7 @@ const onconnection = conn => {
           if (message.topic) {
             const receivers = topics.get(message.topic)
             if (receivers) {
+              message.clients = receivers.size
               receivers.forEach(receiver =>
                 send(receiver, message)
               )

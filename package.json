@@ -1,6 +1,6 @@
 {
   "name": "y-webrtc",
-  "version": "10.2.5",
+  "version": "10.2.6",
   "description": "WebRTC provider for Yjs",
   "type": "module",
   "main": "./dist/y-webrtc.cjs",
@@ -15,7 +15,8 @@
   "exports": {
     "module": "./src/y-webrtc.js",
     "import": "./src/y-webrtc.js",
-    "require": "./dist/y-webrtc.cjs"
+    "require": "./dist/y-webrtc.cjs",
+    "types": "./dist/src/y-webrtc.d.ts"
   },
   "scripts": {
     "clean": "rm -rf dist",
@@ -60,7 +61,7 @@
     "@azure/web-pubsub-client": "^1.0.0-beta.3",
     "lib0": "^0.2.42",
     "simple-peer": "^9.11.0",
-    "y-protocols": "^1.0.5"
+    "y-protocols": "^1.0.6"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.1.0",
@@ -73,13 +74,13 @@
     "rollup-plugin-terser": "^5.3.1",
     "standard": "^14.3.4",
     "typescript": "^4.4.4",
-    "yjs": "^13.5.20"
+    "yjs": "^13.6.8"
   },
-  "peerDependenies": {
-    "yjs": "^13.5.6"
+  "peerDependencies": {
+    "yjs": "^13.6.8"
   },
   "optionalDependencies": {
-    "ws": "^7.2.0"
+    "ws": "^8.14.2"
   },
   "engines": {
     "node": ">=12"
