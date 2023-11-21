@@ -463,7 +463,7 @@ const openRoom = (doc, provider, name, key) => {
  * @param {Room} room
  * @param {any} data
  */
-const publishSignalingMessage = (conn, room, data) => {
+export const publishSignalingMessage = (conn, room, data) => {
   if (room.key) {
     cryptoutils.encryptJson(data, room.key).then(data => {
       conn.publish(room.name, buffer.toBase64(data))
