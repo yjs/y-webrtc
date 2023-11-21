@@ -473,74 +473,6 @@ export const publishSignalingMessage = (conn, room, data) => {
   }
 }
 
-/**
- * @param {SignalingConn} conn
- * @param {Room} room
- * @param {any} data
- */
-const handleMessage = (conn, roomName, data) => {
-  const room = rooms.get(roomName)
-  if (room == null || typeof roomName !== 'string') {
-    return
-  }
-  const execMessage = data => {
-    const webrtcConns = room.webrtcConns
-    const peerId = room.peerId
-    if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
-      // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
-      return
-    }
-    const emitPeerChange = webrtcConns.has(data.from)
-      ? () => {}
-      : () =>
-        room.provider.emit('peers', [{
-          removed: [],
-          added: [data.from],
-          webrtcPeers: Array.from(room.webrtcConns.keys()),
-          bcPeers: Array.from(room.bcConns)
-        }])
-    switch (data.type) {
-      case 'announce':
-        if (webrtcConns.size < room.provider.maxConns) {
-          map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(conn, true, data.from, room))
-          emitPeerChange()
-        }
-        break
-      case 'signal':
-        if (data.signal.type === 'offer') {
-          const existingConn = webrtcConns.get(data.from)
-          if (existingConn) {
-            const remoteToken = data.token
-            const localToken = existingConn.glareToken
-            if (localToken && localToken > remoteToken) {
-              log('offer rejected: ', data.from)
-              return
-            }
-            // if we don't reject the offer, we will be accepting it and answering it
-            existingConn.glareToken = undefined
-          }
-        }
-        if (data.signal.type === 'answer') {
-          log('offer answered by: ', data.from)
-          const existingConn = webrtcConns.get(data.from)
-          existingConn.glareToken = undefined
-        }
-        if (data.to === peerId) {
-          map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(conn, false, data.from, room)).peer.signal(data.signal)
-          emitPeerChange()
-        }
-        break
-    }
-  }
-  if (room.key) {
-    if (typeof data === 'string') {
-      cryptoutils.decryptJson(buffer.fromBase64(data), room.key).then(execMessage)
-    }
-  } else {
-    execMessage(data)
-  }
-}
-
 export class SignalingConn {
   constructor (url) {
     this.url = url
@@ -562,7 +494,7 @@ export class SignalingConn {
     this.client.on('message', m => {
       switch (m.type) {
         case 'publish': {
-          handleMessage(this, m.topic, m.data)
+          this.handleMessage(m.topic, m.data)
         }
       }
     })
@@ -575,6 +507,69 @@ export class SignalingConn {
     )
   }
 
+  handleMessage (roomName, data) {
+    const room = rooms.get(roomName)
+    if (room == null || typeof roomName !== 'string') {
+      return
+    }
+    const execMessage = data => {
+      const webrtcConns = room.webrtcConns
+      const peerId = room.peerId
+      if (data == null || data.from === peerId || (data.to !== undefined && data.to !== peerId) || room.bcConns.has(data.from)) {
+        // ignore messages that are not addressed to this conn, or from clients that are connected via broadcastchannel
+        return
+      }
+      const emitPeerChange = webrtcConns.has(data.from)
+        ? () => {}
+        : () =>
+          room.provider.emit('peers', [{
+            removed: [],
+            added: [data.from],
+            webrtcPeers: Array.from(room.webrtcConns.keys()),
+            bcPeers: Array.from(room.bcConns)
+          }])
+      switch (data.type) {
+        case 'announce':
+          if (webrtcConns.size < room.provider.maxConns) {
+            map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, true, data.from, room))
+            emitPeerChange()
+          }
+          break
+        case 'signal':
+          if (data.signal.type === 'offer') {
+            const existingConn = webrtcConns.get(data.from)
+            if (existingConn) {
+              const remoteToken = data.token
+              const localToken = existingConn.glareToken
+              if (localToken && localToken > remoteToken) {
+                log('offer rejected: ', data.from)
+                return
+              }
+              // if we don't reject the offer, we will be accepting it and answering it
+              existingConn.glareToken = undefined
+            }
+          }
+          if (data.signal.type === 'answer') {
+            log('offer answered by: ', data.from)
+            const existingConn = webrtcConns.get(data.from)
+            existingConn.glareToken = undefined
+          }
+          if (data.to === peerId) {
+            map.setIfUndefined(webrtcConns, data.from, () => new WebrtcConn(this, false, data.from, room)).peer.signal(data.signal)
+            emitPeerChange()
+          }
+          break
+      }
+    }
+    if (room.key) {
+      if (typeof data === 'string') {
+        cryptoutils.decryptJson(buffer.fromBase64(data), room.key).then(execMessage)
+      }
+    } else {
+      execMessage(data)
+    }
+  }
+  
   connected () {
     return this.client.connected
   }
