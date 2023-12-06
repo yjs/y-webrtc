@@ -484,21 +484,19 @@ export class SignalingConn {
   }
 
   setupClient() {
-    // if (this.client === undefined) {
-      this.client = new ws.WebsocketClient(this.url)
-      this.client.on('connect', () => {
-        log(`connected (${this.url})`)
-        this.handleConnect()
-      })
-      this.client.on('message', m => {
-        switch (m.type) {
-          case 'publish': {
-            this.handleMessage(m.topic, m.data)
-          }
+    this.client = new ws.WebsocketClient(this.url)
+    this.client.on('connect', () => {
+      log(`connected (${this.url})`)
+      this.handleConnect()
+    })
+    this.client.on('message', m => {
+      switch (m.type) {
+        case 'publish': {
+          this.handleMessage(m.topic, m.data)
         }
-      })
-      this.client.on('disconnect', () => log(`disconnect (${this.url})`))
-    // }
+      }
+    })
+    this.client.on('disconnect', () => log(`disconnect (${this.url})`))
   }
 
   handleConnect() {
