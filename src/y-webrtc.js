@@ -484,11 +484,10 @@ export class SignalingConn {
   }
 
   setupClient() {
-    if (this.client === undefined) {
+    // if (this.client === undefined) {
       this.client = new ws.WebsocketClient(this.url)
       this.client.on('connect', () => {
         log(`connected (${this.url})`)
-        this.joinAllRooms()
         this.handleConnect()
       })
       this.client.on('message', m => {
@@ -499,10 +498,14 @@ export class SignalingConn {
         }
       })
       this.client.on('disconnect', () => log(`disconnect (${this.url})`))
-    }
+    // }
   }
 
   handleConnect() {
+    const topics = Array.from(rooms.keys())
+    topics.forEach(topic =>
+      this.subscribe(topic)
+    )
     rooms.forEach(room =>
       publishSignalingMessage(this, room, { type: 'announce', from: room.peerId })
     )
@@ -589,13 +592,6 @@ export class SignalingConn {
 
   destroy () {
     this.client.destroy()
-  }
-
-  joinAllRooms() {
-    const topics = Array.from(rooms.keys())
-    topics.forEach(topic =>
-      this.subscribe(topic)
-    )
   }
 }
 
