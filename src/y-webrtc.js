@@ -4,7 +4,7 @@ import * as error from 'lib0/error'
 import * as random from 'lib0/random'
 import * as encoding from 'lib0/encoding'
 import * as decoding from 'lib0/decoding'
-import { Observable } from 'lib0/observable'
+import { ObservableV2 } from 'lib0/observable'
 import * as logging from 'lib0/logging'
 import * as promise from 'lib0/promise'
 import * as bc from 'lib0/broadcastchannel'
@@ -342,9 +342,9 @@ export class Room {
      * Listens to Yjs updates and sends them to remote peers
      *
      * @param {Uint8Array} update
-     * @param {any} origin
+     * @param {any} _origin
      */
-    this._docUpdateHandler = (update, origin) => {
+    this._docUpdateHandler = (update, _origin) => {
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageSync)
       syncProtocol.writeUpdate(encoder, update)
@@ -354,9 +354,9 @@ export class Room {
      * Listens to Awareness updates and sends them to remote peers
      *
      * @param {any} changed
-     * @param {any} origin
+     * @param {any} _origin
      */
-    this._awarenessUpdateHandler = ({ added, updated, removed }, origin) => {
+    this._awarenessUpdateHandler = ({ added, updated, removed }, _origin) => {
       const changedClients = added.concat(updated).concat(removed)
       const encoderAwareness = encoding.createEncoder()
       encoding.writeVarUint(encoderAwareness, messageAwareness)
@@ -570,9 +570,25 @@ export class SignalingConn extends ws.WebsocketClient {
  */
 
 /**
- * @extends Observable<string>
+ * @param {WebrtcProvider} provider
  */
-export class WebrtcProvider extends Observable {
+const emitStatus = provider => {
+  provider.emit('status', [{
+    connected: provider.connected
+  }])
+}
+
+/**
+ * @typedef {Object} WebrtcProviderEvents
+ * @property {function({connected:boolean}):void} WebrtcProviderEvent.status
+ * @property {function({synced:boolean}):void} WebrtcProviderEvent.synced
+ * @property {function({added:Array<string>,removed:Array<string>,webrtcPeers:Array<string>,bcPeers:Array<string>}):void} WebrtcProviderEvent.peers
+ */
+
+/**
+ * @extends ObservableV2<WebrtcProviderEvents>
+ */
+export class WebrtcProvider extends ObservableV2 {
   /**
    * @param {string} roomName
    * @param {Y.Doc} doc
@@ -618,6 +634,7 @@ export class WebrtcProvider extends Observable {
       } else {
         this.room.disconnect()
       }
+      emitStatus(this)
     })
     this.connect()
     this.destroy = this.destroy.bind(this)
@@ -625,6 +642,15 @@ export class WebrtcProvider extends Observable {
   }
 
   /**
+   * Indicates whether the provider is looking for other peers.
+   *
+   * Other peers can be found via signaling servers or via broadcastchannel (cross browser-tab
+   * communication). You never know when you are connected to all peers. You also don't know if
+   * there are other peers. connected doesn't mean that you are connected to any physical peers
+   * working on the same resource as you. It does not change unless you call provider.disconnect()
+   *
+   * `this.on('status', (event) => { console.log(event.connected) })`
+   *
    * @type {boolean}
    */
   get connected () {
@@ -640,6 +666,7 @@ export class WebrtcProvider extends Observable {
     })
     if (this.room) {
       this.room.connect()
+      emitStatus(this)
     }
   }
 
@@ -654,6 +681,7 @@ export class WebrtcProvider extends Observable {
     })
     if (this.room) {
       this.room.disconnect()
+      emitStatus(this)
     }
   }
 
