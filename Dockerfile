@@ -28,4 +28,4 @@ RUN npm i wrtc
 # Expose the port that the application listens on.
 # EXPOSE 8000
 
-CMD node run.js
+CMD node server.js

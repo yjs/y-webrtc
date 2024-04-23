@@ -1,7 +1,10 @@
 /* eslint-env browser */
 
+import express from "express";
 import * as Y from 'yjs'
 import { WebrtcProvider } from './src/y-webrtc.js'
+
+const app = express();
 
 const ydoc = new Y.Doc()
 const provider = new WebrtcProvider('kpmsknMCitim2Re65HhGqA', ydoc, { signaling: ['wss://yjs-signaling-server-5fb6d64b3314.herokuapp.com'] })
@@ -28,3 +31,6 @@ provider.on('synced', synced => {
 yarray.observeDeep(() => {
   console.log('yarray updated: ', yarray.toJSON())
 })
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log("Listening on port", PORT));
