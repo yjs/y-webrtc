@@ -6,7 +6,7 @@ import * as promise from '@josias_aurel/lib0/promise'
 import * as error from '@josias_aurel/lib0/error'
 import * as string from '@josias_aurel/lib0/string'
 
-// globalThis.crypto = crypto
+const crypto = globalThis.crypto;
 
 /**
  * @param {string} secret

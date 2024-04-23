@@ -12,8 +12,9 @@ import * as buffer from '@josias_aurel/lib0/buffer'
 import * as math from '@josias_aurel/lib0/math'
 import { createMutex } from '@josias_aurel/lib0/mutex'
 
+import wrtc from 'wrtc';
 import * as Y from 'yjs' // eslint-disable-line
-import Peer from 'simple-peer/simplepeer.min.js'
+import Peer from "simple-peer"
 
 import * as syncProtocol from 'y-protocols/sync'
 import * as awarenessProtocol from 'y-protocols/awareness'
@@ -181,7 +182,7 @@ export class WebrtcConn {
     /**
      * @type {any}
      */
-    this.peer = new Peer({ initiator, ...room.provider.peerOpts })
+    this.peer = new Peer({ initiator, ...room.provider.peerOpts, wrtc })
     this.peer.on('signal', signal => {
       if (this.glareToken === undefined) {
         // add some randomness to the timestamp of the offer
