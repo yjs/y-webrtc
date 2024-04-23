@@ -47,9 +47,9 @@
   },
   "homepage": "https://github.com/yjs/y-webrtc#readme",
   "dependencies": {
-    "@josias_aurel/lib0": "^0.2.94",
     "esbuild": "^0.20.2",
     "express": "^4.19.2",
+    "lib0-server-ws": "^0.2.94",
     "simple-peer": "^9.11.1",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.14"
